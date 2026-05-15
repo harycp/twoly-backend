@@ -14,7 +14,7 @@ import (
 func main() {
 	err := godotenv.Load()
 	if err != nil {
-		log.Println("Warning: File .env tidak ditemukan, menggunakan environment system")
+		log.Println("[WARN] .env file not found. Using system environment variables.")
 	}
 
 	config.ConnectDB()
@@ -29,8 +29,26 @@ func main() {
 		port = "8080"
 	}
 
-	log.Printf("Server berjalan di port: %s\n", port)
+	printServerBanner(port)
+
 	if err := r.Run(":" + port); err != nil {
-		log.Fatalf("Gagal menjalankan server: %v", err)
+		log.Fatalf("[ERROR] Failed to start server: %v", err)
 	}
+}
+
+func printServerBanner(port string) {
+	log.Printf(`
++--------------------------------------------------+
+|              TWOLY BACKEND SYSTEM                |
++--------------------------------------------------+
+| STATUS       : ONLINE                            |
+| ENVIRONMENT  : DEVELOPMENT                       |
+| PROTOCOL     : HTTP                              |
+| HOST         : localhost                         |
+| PORT         : %-32s |
+| BASE URL     : http://localhost:%-15s |
++--------------------------------------------------+
+| SYSTEM LOG   : SERVER BOOT SEQUENCE COMPLETED    |
++--------------------------------------------------+
+`, port, port)
 }

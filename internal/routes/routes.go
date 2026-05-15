@@ -17,6 +17,7 @@ func SetupRoutes(r *gin.Engine) {
 	coupleRepo := repositories.NewCoupleRepository(db)
 	memoryRepo := repositories.NewMemoryRepository(db)
 	photoRepo := repositories.NewMemoryPhotoRepository(db)
+	datePlanRepo := repositories.NewDatePlanRepository(db)
 
 	// Services
 	cloudinarySvc := services.NewCloudinaryService()
@@ -24,17 +25,19 @@ func SetupRoutes(r *gin.Engine) {
 	coupleService := services.NewCoupleService(coupleRepo)
 	memoryService := services.NewMemoryService(memoryRepo, coupleRepo)
 	photoService := services.NewMemoryPhotoService(photoRepo, memoryRepo, coupleRepo, cloudinarySvc)
+	datePlanService := services.NewDatePlanService(datePlanRepo, coupleRepo, memoryRepo)
 
 	// Handlers
 	authHandler := handlers.NewAuthHandler(authService)
 	coupleHandler := handlers.NewCoupleHandler(coupleService)
 	memoryHandler := handlers.NewMemoryHandler(memoryService)
 	photoHandler := handlers.NewMemoryPhotoHandler(photoService)
+	datePlanHandler := handlers.NewDatePlanHandler(datePlanService)
 
 	v1 := r.Group("/api/v1")
 	{
 		v1.GET("/health", func(c *gin.Context) {
-			c.JSON(200, gin.H{"status": "success", "message": "Twoly API is running perfectly 🚀"})
+			c.JSON(200, gin.H{"status": "success", "message": "Twoly API is running perfectly "})
 		})
 
 		auth := v1.Group("/auth")
@@ -65,10 +68,22 @@ func SetupRoutes(r *gin.Engine) {
 				memories.PUT("/:id", memoryHandler.UpdateMemory)
 				memories.DELETE("/:id", memoryHandler.DeleteMemory)
 
-				// Memory Photos Routes
 				memories.POST("/:id/photos", photoHandler.UploadPhotos)
 				memories.GET("/:id/photos", photoHandler.GetPhotos)
 				memories.DELETE("/:id/photos/:photoId", photoHandler.DeletePhoto)
+			}
+
+			// Date Plan Routes
+			datePlans := protected.Group("/date-plans")
+			{
+				datePlans.POST("/", datePlanHandler.CreateDatePlan)
+				datePlans.GET("/", datePlanHandler.GetAllDatePlans)
+				datePlans.GET("/:id", datePlanHandler.GetDatePlanDetail)
+				datePlans.PUT("/:id", datePlanHandler.UpdateDatePlan)
+				datePlans.DELETE("/:id", datePlanHandler.DeleteDatePlan)
+				datePlans.PATCH("/:id/status", datePlanHandler.UpdateStatus)
+				datePlans.PATCH("/:id/checklists/:checklistId", datePlanHandler.UpdateChecklistItem)
+				datePlans.POST("/:id/convert-to-memory", datePlanHandler.ConvertToMemory)
 			}
 		}
 	}
