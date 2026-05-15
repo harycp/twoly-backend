@@ -14,9 +14,9 @@ var DB *gorm.DB
 
 func ConnectDB() {
 	host := os.Getenv("DB_HOST")
-	user := os.Getenv("DB_USERNAME")  
+	user := os.Getenv("DB_USERNAME")
 	password := os.Getenv("DB_PASSWORD")
-	dbname := os.Getenv("DB_DATABASE") 
+	dbname := os.Getenv("DB_DATABASE")
 	port := os.Getenv("DB_PORT")
 	sslmode := os.Getenv("DB_SSLMODE")
 
@@ -27,7 +27,10 @@ func ConnectDB() {
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
 		host, user, password, dbname, port, sslmode)
 
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+	db, err := gorm.Open(postgres.New(postgres.Config{
+		DSN:                  dsn,
+		PreferSimpleProtocol: true, 
+	}), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 	})
 

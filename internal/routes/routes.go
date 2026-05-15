@@ -13,13 +13,18 @@ func SetupRoutes(r *gin.Engine) {
 	db := config.GetDB()
 
 	userRepo := repositories.NewUserRepository(db)
+	coupleRepo := repositories.NewCoupleRepository(db)
+
 	authService := services.NewAuthService(userRepo)
+	coupleService := services.NewCoupleService(coupleRepo)
+
 	authHandler := handlers.NewAuthHandler(authService)
+	coupleHandler := handlers.NewCoupleHandler(coupleService)
 
 	v1 := r.Group("/api/v1")
 	{
 		v1.GET("/health", func(c *gin.Context) {
-				c.JSON(200, gin.H{"status": "success", "message": "Twoly API is running successfully 🚀"})
+			c.JSON(200, gin.H{"status": "success", "message": "Twoly API is running perfectly 🚀"})
 		})
 
 		auth := v1.Group("/auth")
@@ -32,6 +37,13 @@ func SetupRoutes(r *gin.Engine) {
 		protected.Use(middleware.RequireAuth())
 		{
 			protected.GET("/auth/me", authHandler.GetMe)
+			
+			couples := protected.Group("/couples")
+			{
+				couples.POST("/invite", coupleHandler.CreateInvite)
+				couples.POST("/join", coupleHandler.JoinCouple)
+				couples.GET("/me", coupleHandler.GetMyCouple)
+			}
 		}
 	}
 }
