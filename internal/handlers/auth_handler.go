@@ -16,11 +16,10 @@ func NewAuthHandler(authService services.AuthService) *AuthHandler {
 	return &AuthHandler{authService}
 }
 
-// Register Handler
 func (h *AuthHandler) Register(c *gin.Context) {
 	var req dto.RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "Validasi gagal", "error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Validation failed", "error": err.Error()})
 		return
 	}
 
@@ -36,11 +35,10 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	})
 }
 
-// Login Handler
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req dto.LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "Validasi gagal", "error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Validation failed", "error": err.Error()})
 		return
 	}
 
@@ -52,6 +50,25 @@ func (h *AuthHandler) Login(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Login success",
+		"data":    res,
+	})
+}
+
+func (h *AuthHandler) GetMe(c *gin.Context) {
+	userID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
+		return
+	}
+
+	res, err := h.authService.GetMe(userID.(string))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Success fetch user profile",
 		"data":    res,
 	})
 }

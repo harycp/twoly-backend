@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/harycp/twoly-backend/internal/config"
 	"github.com/harycp/twoly-backend/internal/handlers"
+	"github.com/harycp/twoly-backend/internal/middleware"
 	"github.com/harycp/twoly-backend/internal/repositories"
 	"github.com/harycp/twoly-backend/internal/services"
 )
@@ -25,6 +26,12 @@ func SetupRoutes(r *gin.Engine) {
 		{
 			auth.POST("/register", authHandler.Register)
 			auth.POST("/login", authHandler.Login)
+		}
+
+		protected := v1.Group("/")
+		protected.Use(middleware.RequireAuth())
+		{
+			protected.GET("/auth/me", authHandler.GetMe)
 		}
 	}
 }

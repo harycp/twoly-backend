@@ -12,6 +12,7 @@ import (
 type AuthService interface {
 	Register(req dto.RegisterRequest) (dto.AuthResponse, error)
 	Login(req dto.LoginRequest) (dto.AuthResponse, error)
+	GetMe(userID string) (dto.UserResponse, error)
 }
 
 type authService struct {
@@ -23,13 +24,11 @@ func NewAuthService(userRepo repositories.UserRepository) AuthService {
 }
 
 func (s *authService) Register(req dto.RegisterRequest) (dto.AuthResponse, error) {
-	// 1. Cek apakah email sudah terdaftar
 	existingUser, _ := s.userRepo.FindByEmail(req.Email)
 	if existingUser != nil && existingUser.Email != "" {
-		return dto.AuthResponse{}, errors.New("email sudah terdaftar")
+		return dto.AuthResponse{}, errors.New("email already exists")
 	}
 
-	// 2. Hash password
 	hashedPassword, err := utils.HashPassword(req.Password)
 	if err != nil {
 		return dto.AuthResponse{}, err
@@ -89,5 +88,19 @@ func (s *authService) Login(req dto.LoginRequest) (dto.AuthResponse, error) {
 			Name:  user.Name,
 			Email: user.Email,
 		},
+	}, nil
+}
+
+// Tambahkan fungsi GetMe di bawah ini
+func (s *authService) GetMe(userID string) (dto.UserResponse, error) {
+	user, err := s.userRepo.FindByID(userID)
+	if err != nil {
+		return dto.UserResponse{}, errors.New("user tidak ditemukan")
+	}
+
+	return dto.UserResponse{
+		ID:    user.ID.String(),
+		Name:  user.Name,
+		Email: user.Email,
 	}, nil
 }
