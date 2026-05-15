@@ -71,7 +71,6 @@ func (s *coupleService) JoinCouple(userID string, req dto.JoinCoupleRequest) err
 		return errors.New("invalid user ID")
 	}
 
-	// Perbaikan pengecekan keberadaan couple
 	existingCouple, err := s.coupleRepo.FindByUserID(userID)
 	if err == nil && existingCouple != nil {
 		return errors.New("you are already in a couple")

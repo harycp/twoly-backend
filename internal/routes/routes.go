@@ -14,12 +14,15 @@ func SetupRoutes(r *gin.Engine) {
 
 	userRepo := repositories.NewUserRepository(db)
 	coupleRepo := repositories.NewCoupleRepository(db)
+	memoryRepo := repositories.NewMemoryRepository(db)
 
 	authService := services.NewAuthService(userRepo)
 	coupleService := services.NewCoupleService(coupleRepo)
+	memoryService := services.NewMemoryService(memoryRepo, coupleRepo)
 
 	authHandler := handlers.NewAuthHandler(authService)
 	coupleHandler := handlers.NewCoupleHandler(coupleService)
+	memoryHandler := handlers.NewMemoryHandler(memoryService)
 
 	v1 := r.Group("/api/v1")
 	{
@@ -45,5 +48,14 @@ func SetupRoutes(r *gin.Engine) {
 				couples.GET("/me", coupleHandler.GetMyCouple)
 			}
 		}
+
+		memories := protected.Group("/memories")
+			{
+				memories.POST("/", memoryHandler.CreateMemory)
+				memories.GET("/", memoryHandler.GetAllMemories)
+				memories.GET("/:id", memoryHandler.GetMemoryDetail)
+				memories.PUT("/:id", memoryHandler.UpdateMemory)
+				memories.DELETE("/:id", memoryHandler.DeleteMemory)
+			}
 	}
 }

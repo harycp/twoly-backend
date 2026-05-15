@@ -39,7 +39,7 @@ func (r *coupleRepository) FindByUserID(userID string) (*models.Couple, error) {
 		Where("user_one_id = ? OR user_two_id = ?", userID, userID).
 		First(&couple).Error
 	if err != nil {
-		return nil, err // Perbaikan: Kembalikan nil jika error/tidak ditemukan
+		return nil, err
 	}
 	return &couple, nil
 }
