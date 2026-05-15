@@ -18,6 +18,7 @@ func main() {
 	}
 
 	config.ConnectDB()
+	config.ConnectCloudinary()
 
 	r := gin.Default()
 

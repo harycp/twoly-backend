@@ -12,17 +12,24 @@ import (
 func SetupRoutes(r *gin.Engine) {
 	db := config.GetDB()
 
+	// Repositories
 	userRepo := repositories.NewUserRepository(db)
 	coupleRepo := repositories.NewCoupleRepository(db)
 	memoryRepo := repositories.NewMemoryRepository(db)
+	photoRepo := repositories.NewMemoryPhotoRepository(db)
 
+	// Services
+	cloudinarySvc := services.NewCloudinaryService()
 	authService := services.NewAuthService(userRepo)
 	coupleService := services.NewCoupleService(coupleRepo)
 	memoryService := services.NewMemoryService(memoryRepo, coupleRepo)
+	photoService := services.NewMemoryPhotoService(photoRepo, memoryRepo, coupleRepo, cloudinarySvc)
 
+	// Handlers
 	authHandler := handlers.NewAuthHandler(authService)
 	coupleHandler := handlers.NewCoupleHandler(coupleService)
 	memoryHandler := handlers.NewMemoryHandler(memoryService)
+	photoHandler := handlers.NewMemoryPhotoHandler(photoService)
 
 	v1 := r.Group("/api/v1")
 	{
@@ -41,21 +48,28 @@ func SetupRoutes(r *gin.Engine) {
 		{
 			protected.GET("/auth/me", authHandler.GetMe)
 			
+			// Couple Routes
 			couples := protected.Group("/couples")
 			{
 				couples.POST("/invite", coupleHandler.CreateInvite)
 				couples.POST("/join", coupleHandler.JoinCouple)
 				couples.GET("/me", coupleHandler.GetMyCouple)
 			}
-		}
 
-		memories := protected.Group("/memories")
+			// Memory Routes
+			memories := protected.Group("/memories")
 			{
 				memories.POST("/", memoryHandler.CreateMemory)
 				memories.GET("/", memoryHandler.GetAllMemories)
 				memories.GET("/:id", memoryHandler.GetMemoryDetail)
 				memories.PUT("/:id", memoryHandler.UpdateMemory)
 				memories.DELETE("/:id", memoryHandler.DeleteMemory)
+
+				// Memory Photos Routes
+				memories.POST("/:id/photos", photoHandler.UploadPhotos)
+				memories.GET("/:id/photos", photoHandler.GetPhotos)
+				memories.DELETE("/:id/photos/:photoId", photoHandler.DeletePhoto)
 			}
+		}
 	}
 }
