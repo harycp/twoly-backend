@@ -10,6 +10,10 @@ type JoinCoupleRequest struct {
 	InviteCode string `json:"invite_code" binding:"required"`
 }
 
+type UpdateCoupleSettingsRequest struct {
+	AnniversaryDate *string `json:"anniversary_date" binding:"omitempty,datetime=2006-01-02"`
+}
+
 type CoupleResponse struct {
 	CoupleID        string        `json:"couple_id"`
 	InviteCode      string        `json:"invite_code"`

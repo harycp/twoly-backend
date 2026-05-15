@@ -15,6 +15,7 @@ type CoupleService interface {
 	CreateInvite(userID string, req dto.CreateInviteRequest) (dto.CoupleResponse, error)
 	JoinCouple(userID string, req dto.JoinCoupleRequest) error
 	GetMyCouple(userID string) (dto.CoupleResponse, error)
+	UpdateCoupleSettings(userID string, req dto.UpdateCoupleSettingsRequest) (dto.CoupleResponse, error)
 }
 
 type coupleService struct {
@@ -117,12 +118,35 @@ func (s *coupleService) GetMyCouple(userID string) (dto.CoupleResponse, error) {
 
 	if partner != nil && partner.ID != uuid.Nil {
 		response.Partner = &dto.UserResponse{
-			ID:       partner.ID.String(),
-			Name:     partner.Name,
-			Username: partner.Username,
-			Email:    partner.Email,
+			ID:        partner.ID.String(),
+			Name:      partner.Name,
+			Username:  partner.Username,
+			Email:     partner.Email,
+			AvatarURL: partner.AvatarURL,
 		}
 	}
 
 	return response, nil
+}
+
+func (s *coupleService) UpdateCoupleSettings(userID string, req dto.UpdateCoupleSettingsRequest) (dto.CoupleResponse, error) {
+	couple, err := s.coupleRepo.FindByUserID(userID)
+	if err != nil || couple == nil {
+		return dto.CoupleResponse{}, errors.New("couple not found")
+	}
+
+	if req.AnniversaryDate != nil {
+		t, err := time.Parse("2006-01-02", *req.AnniversaryDate)
+		if err == nil {
+			couple.AnniversaryDate = &t
+		} else {
+			return dto.CoupleResponse{}, errors.New("invalid date format, use YYYY-MM-DD")
+		}
+	}
+
+	if err := s.coupleRepo.UpdateCouple(couple); err != nil {
+		return dto.CoupleResponse{}, errors.New("failed to update couple settings")
+	}
+
+	return s.GetMyCouple(userID)
 }

@@ -71,3 +71,24 @@ func (h *CoupleHandler) GetMyCouple(c *gin.Context) {
 		"data":    res,
 	})
 }
+
+func (h *CoupleHandler) UpdateCoupleSettings(c *gin.Context) {
+	userID, _ := c.Get("userID")
+
+	var req dto.UpdateCoupleSettingsRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Validation failed", "error": err.Error()})
+		return
+	}
+
+	res, err := h.coupleService.UpdateCoupleSettings(userID.(string), req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Couple settings updated successfully",
+		"data":    res,
+	})
+}

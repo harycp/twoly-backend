@@ -18,8 +18,15 @@ type AuthResponse struct {
 }
 
 type UserResponse struct {
-	ID       string `json:"id"`
-	Name     string `json:"name"`
-	Username string `json:"username"`
-	Email    string `json:"email"`
+	ID        string  `json:"id"`
+	Username  string  `json:"username"`
+	Name      string  `json:"name"`
+	Email     string  `json:"email"`
+	AvatarURL *string `json:"avatar_url,omitempty"`
+}
+
+type UpdateProfileRequest struct {
+	Name      string  `json:"name"`
+	Username  string  `json:"username" binding:"omitempty,min=3,max=50"`
+	AvatarURL *string `json:"avatar_url"`
 }

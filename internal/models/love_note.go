@@ -18,7 +18,6 @@ type LoveNote struct {
 	CreatedAt  time.Time  `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt  time.Time  `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
 
-	// Relasi
 	Couple   Couple `gorm:"foreignKey:CoupleID" json:"-"`
 	Sender   User   `gorm:"foreignKey:SenderID" json:"-"`
 	Receiver User   `gorm:"foreignKey:ReceiverID" json:"-"`

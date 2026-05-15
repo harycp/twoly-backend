@@ -13,6 +13,7 @@ type AuthService interface {
 	Register(req dto.RegisterRequest) (dto.AuthResponse, error)
 	Login(req dto.LoginRequest) (dto.AuthResponse, error)
 	GetMe(userID string) (dto.UserResponse, error)
+	UpdateProfile(userID string, req dto.UpdateProfileRequest) (dto.UserResponse, error)
 }
 
 type authService struct {
@@ -95,9 +96,45 @@ func (s *authService) GetMe(userID string) (dto.UserResponse, error) {
 	}
 
 	return dto.UserResponse{
-		ID:       user.ID.String(),
-		Name:     user.Name,
-		Username: user.Username,
-		Email:    user.Email,
+		ID:        user.ID.String(),
+		Username:  user.Username,
+		Name:      user.Name,
+		Email:     user.Email,
+		AvatarURL: user.AvatarURL,
+	}, nil
+}
+
+func (s *authService) UpdateProfile(userID string, req dto.UpdateProfileRequest) (dto.UserResponse, error) {
+	user, err := s.userRepo.FindByID(userID)
+	if err != nil {
+		return dto.UserResponse{}, errors.New("user not found")
+	}
+
+	if req.Username != "" && req.Username != user.Username {
+		existingUsername, _ := s.userRepo.FindByUsername(req.Username)
+		if existingUsername != nil && existingUsername.Username != "" {
+			return dto.UserResponse{}, errors.New("username is already taken by another user")
+		}
+		user.Username = req.Username
+	}
+
+	if req.Name != "" {
+		user.Name = req.Name
+	}
+	
+	if req.AvatarURL != nil {
+		user.AvatarURL = req.AvatarURL
+	}
+
+	if err := s.userRepo.UpdateUser(user); err != nil {
+		return dto.UserResponse{}, errors.New("failed to update profile")
+	}
+
+	return dto.UserResponse{
+		ID:        user.ID.String(),
+		Username:  user.Username,
+		Name:      user.Name,
+		Email:     user.Email,
+		AvatarURL: user.AvatarURL,
 	}, nil
 }

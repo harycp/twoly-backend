@@ -10,6 +10,8 @@ type UserRepository interface {
 	FindByEmail(email string) (*models.User, error)
 	FindByEmailOrUsername(identifier string) (*models.User, error)
 	FindByID(id string) (*models.User, error)
+	FindByUsername(username string) (*models.User, error)
+	UpdateUser(user *models.User) error
 }
 
 type userRepository struct {
@@ -36,8 +38,18 @@ func (r *userRepository) FindByEmailOrUsername(identifier string) (*models.User,
 	return &user, err
 }
 
+func (r *userRepository) FindByUsername(username string) (*models.User, error) {
+	var user models.User
+	err := r.db.Where("username = ?", username).First(&user).Error
+	return &user, err
+}
+
 func (r *userRepository) FindByID(id string) (*models.User, error) {
 	var user models.User
 	err := r.db.Where("id = ?", id).First(&user).Error
 	return &user, err
+}
+
+func (r *userRepository) UpdateUser(user *models.User) error {
+	return r.db.Save(user).Error
 }

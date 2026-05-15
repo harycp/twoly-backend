@@ -39,7 +39,7 @@ func (h *MemoryHandler) CreateMemory(c *gin.Context) {
 
 func (h *MemoryHandler) GetAllMemories(c *gin.Context) {
 	userID, _ := c.Get("userID")
-	month := c.Query("month") // Menangkap query parameter ?month=YYYY-MM
+	month := c.Query("month")
 
 	res, err := h.memoryService.GetAllMemories(userID.(string), month)
 	if err != nil {

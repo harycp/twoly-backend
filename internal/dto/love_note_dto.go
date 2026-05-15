@@ -12,7 +12,7 @@ type LoveNoteResponse struct {
 	CoupleID   string     `json:"couple_id"`
 	SenderID   string     `json:"sender_id"`
 	ReceiverID string     `json:"receiver_id"`
-	Message    string     `json:"message"` // Teks ini akan di-hidden (disensor) oleh Service jika belum waktunya dibuka
+	Message    string     `json:"message"` 
 	UnlockAt   *time.Time `json:"unlock_at"`
 	IsOpened   bool       `json:"is_opened"`
 	OpenedAt   *time.Time `json:"opened_at"`

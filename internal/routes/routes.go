@@ -19,6 +19,7 @@ func SetupRoutes(r *gin.Engine) {
 	photoRepo := repositories.NewMemoryPhotoRepository(db)
 	datePlanRepo := repositories.NewDatePlanRepository(db)
 	calendarRepo := repositories.NewCalendarRepository(db)
+	loveNoteRepo := repositories.NewLoveNoteRepository(db) 
 
 	// Services
 	cloudinarySvc := services.NewCloudinaryService()
@@ -28,6 +29,7 @@ func SetupRoutes(r *gin.Engine) {
 	photoService := services.NewMemoryPhotoService(photoRepo, memoryRepo, coupleRepo, cloudinarySvc)
 	datePlanService := services.NewDatePlanService(datePlanRepo, coupleRepo, memoryRepo)
 	calendarService := services.NewCalendarService(calendarRepo, memoryRepo, datePlanRepo, coupleRepo)
+	loveNoteService := services.NewLoveNoteService(loveNoteRepo, coupleRepo)
 
 	// Handlers
 	authHandler := handlers.NewAuthHandler(authService)
@@ -36,6 +38,7 @@ func SetupRoutes(r *gin.Engine) {
 	photoHandler := handlers.NewMemoryPhotoHandler(photoService)
 	datePlanHandler := handlers.NewDatePlanHandler(datePlanService)
 	calendarHandler := handlers.NewCalendarHandler(calendarService)
+	loveNoteHandler := handlers.NewLoveNoteHandler(loveNoteService)
 
 	v1 := r.Group("/api/v1")
 	{
@@ -53,6 +56,7 @@ func SetupRoutes(r *gin.Engine) {
 		protected.Use(middleware.RequireAuth())
 		{
 			protected.GET("/auth/me", authHandler.GetMe)
+			protected.PUT("/auth/me", authHandler.UpdateProfile)
 			
 			// Couple Routes
 			couples := protected.Group("/couples")
@@ -60,6 +64,7 @@ func SetupRoutes(r *gin.Engine) {
 				couples.POST("/invite", coupleHandler.CreateInvite)
 				couples.POST("/join", coupleHandler.JoinCouple)
 				couples.GET("/me", coupleHandler.GetMyCouple)
+				couples.PUT("/me", coupleHandler.UpdateCoupleSettings)
 			}
 
 			// Memory Routes
@@ -98,6 +103,15 @@ func SetupRoutes(r *gin.Engine) {
 				calendar.POST("/events", calendarHandler.CreateCustomEvent)
 				calendar.PUT("/events/:id", calendarHandler.UpdateCustomEvent)
 				calendar.DELETE("/events/:id", calendarHandler.DeleteCustomEvent)
+			}
+
+			// Love Notes Routes
+			loveNotes := protected.Group("/love-notes")
+			{
+				loveNotes.POST("/", loveNoteHandler.CreateLoveNote)
+				loveNotes.GET("/", loveNoteHandler.GetLoveNotes)
+				loveNotes.POST("/:id/open", loveNoteHandler.OpenLoveNote)
+				loveNotes.DELETE("/:id", loveNoteHandler.DeleteLoveNote)
 			}
 		}
 	}
