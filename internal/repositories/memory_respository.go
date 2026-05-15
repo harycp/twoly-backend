@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"time"
+
 	"github.com/harycp/twoly-backend/internal/models"
 	"gorm.io/gorm"
 )
@@ -8,6 +10,7 @@ import (
 type MemoryRepository interface {
 	CreateMemory(memory *models.Memory) error
 	FindAllByCoupleID(coupleID string, month string) ([]models.Memory, error)
+	FindAllByDateRange(coupleID string, start time.Time, end time.Time) ([]models.Memory, error)
 	FindByID(id string, coupleID string) (*models.Memory, error)
 	UpdateMemory(memory *models.Memory) error
 	DeleteMemory(memory *models.Memory) error
@@ -30,11 +33,17 @@ func (r *memoryRepository) FindAllByCoupleID(coupleID string, month string) ([]m
 	query := r.db.Where("couple_id = ?", coupleID)
 	
 	if month != "" {
-		// PostgreSQL spesifik: filter berdasarkan string YYYY-MM
 		query = query.Where("TO_CHAR(memory_date, 'YYYY-MM') = ?", month)
 	}
+	
+	err := query.Order("memory_date ASC").Find(&memories).Error
+	return memories, err
+}
 
-	err := query.Order("memory_date DESC").Find(&memories).Error
+func (r *memoryRepository) FindAllByDateRange(coupleID string, start time.Time, end time.Time) ([]models.Memory, error) {
+	var memories []models.Memory
+	err := r.db.Where("couple_id = ? AND memory_date >= ? AND memory_date <= ?", coupleID, start, end).
+		Order("memory_date ASC").Find(&memories).Error
 	return memories, err
 }
 

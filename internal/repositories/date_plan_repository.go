@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"time"
+
 	"github.com/harycp/twoly-backend/internal/models"
 	"gorm.io/gorm"
 )
@@ -8,6 +10,7 @@ import (
 type DatePlanRepository interface {
 	CreateDatePlan(datePlan *models.DatePlan) error
 	FindAllByCoupleID(coupleID string, status string) ([]models.DatePlan, error)
+	FindAllByDateRange(coupleID string, start time.Time, end time.Time) ([]models.DatePlan, error)
 	FindByID(id string, coupleID string) (*models.DatePlan, error)
 	UpdateDatePlan(datePlan *models.DatePlan) error
 	DeleteDatePlan(datePlan *models.DatePlan) error
@@ -36,10 +39,17 @@ func (r *datePlanRepository) FindAllByCoupleID(coupleID string, status string) (
 	if status != "" {
 		query = query.Where("status = ?", status)
 	}
-	
-	// Order by closest plan date first
+
 	err := query.Order("plan_date ASC").Find(&datePlans).Error
 	return datePlans, err
+}
+
+func (r *datePlanRepository) FindAllByDateRange(coupleID string, start time.Time, end time.Time) ([]models.DatePlan, error) {
+	var plans []models.DatePlan
+	err := r.db.Preload("Checklists").
+		Where("couple_id = ? AND plan_date >= ? AND plan_date <= ?", coupleID, start, end).
+		Order("plan_date ASC").Find(&plans).Error
+	return plans, err
 }
 
 func (r *datePlanRepository) FindByID(id string, coupleID string) (*models.DatePlan, error) {

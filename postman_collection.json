@@ -1,0 +1,477 @@
+{
+  "info": {
+    "name": "Twoly API - Example Collection",
+    "_postman_id": "twoly-example-collection",
+    "description": "Collection with example requests for Twoly API (use {{baseUrl}} and {{token}}).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080/api/v1" },
+    { "key": "token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Alice\",\n  \"username\": \"alice123\",\n  \"email\": \"alice@example.com\",\n  \"password\": \"secret123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email_or_username\": \"alice@example.com\",\n  \"password\": \"secret123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Me",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "me"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Couples",
+      "item": [
+        {
+          "name": "Create Invite",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/couples/invite",
+              "host": ["{{baseUrl}}"],
+              "path": ["couples", "invite"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"anniversary_date\": \"2026-06-01\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Join Couple",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/couples/join",
+              "host": ["{{baseUrl}}"],
+              "path": ["couples", "join"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"invite_code\": \"ABCD1234\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get My Couple",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/couples/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["couples", "me"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Memories",
+      "item": [
+        {
+          "name": "Create Memory",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/memories",
+              "host": ["{{baseUrl}}"],
+              "path": ["memories"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Beach day\",\n  \"description\": \"Sunset with partner\",\n  \"memory_date\": \"2026-05-15\",\n  \"location_name\": \"Kuta Beach\",\n  \"latitude\": 12.34,\n  \"longitude\": 56.78,\n  \"mood\": \"happy\",\n  \"tags\": [\"vacation\",\"sunset\"]\n}"
+            }
+          }
+        },
+        {
+          "name": "List Memories",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/memories?month=2026-05",
+              "host": ["{{baseUrl}}"],
+              "path": ["memories"],
+              "query": [{ "key": "month", "value": "2026-05" }]
+            }
+          }
+        },
+        {
+          "name": "Get Memory",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/memories/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["memories", ":id"]
+            }
+          }
+        },
+        {
+          "name": "Update Memory",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/memories/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["memories", ":id"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated title\",\n  \"notes\": \"optional\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Memory",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/memories/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["memories", ":id"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Memory Photos",
+      "item": [
+        {
+          "name": "Upload Photos",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/memories/:id/photos",
+              "host": ["{{baseUrl}}"],
+              "path": ["memories", ":id", "photos"]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "files", "type": "file", "src": "<path-to-file1>" },
+                { "key": "files", "type": "file", "src": "<path-to-file2>" },
+                { "key": "captions", "type": "text", "value": "First photo" },
+                { "key": "captions", "type": "text", "value": "Second photo" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Photos",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/memories/:id/photos",
+              "host": ["{{baseUrl}}"],
+              "path": ["memories", ":id", "photos"]
+            }
+          }
+        },
+        {
+          "name": "Delete Photo",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/memories/:id/photos/:photoId",
+              "host": ["{{baseUrl}}"],
+              "path": ["memories", ":id", "photos", ":photoId"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Date Plans",
+      "item": [
+        {
+          "name": "Create Date Plan",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/date-plans",
+              "host": ["{{baseUrl}}"],
+              "path": ["date-plans"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Dinner\",\n  \"notes\": \"Book table\",\n  \"plan_date\": \"2026-05-20T19:00:00+07:00\",\n  \"location_name\": \"Restaurant\",\n  \"latitude\": 1.23,\n  \"longitude\": 4.56,\n  \"checklists\": [\"Call venue\", \"Reserve parking\"]\n}"
+            }
+          }
+        },
+        {
+          "name": "List Date Plans",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/date-plans?status=planned",
+              "host": ["{{baseUrl}}"],
+              "path": ["date-plans"],
+              "query": [{ "key": "status", "value": "planned" }]
+            }
+          }
+        },
+        {
+          "name": "Get Date Plan",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/date-plans/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["date-plans", ":id"]
+            }
+          }
+        },
+        {
+          "name": "Update Date Plan",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/date-plans/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["date-plans", ":id"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Plan\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Date Plan",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/date-plans/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["date-plans", ":id"]
+            }
+          }
+        },
+        {
+          "name": "Update Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/date-plans/:id/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["date-plans", ":id", "status"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"completed\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Checklist Item",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/date-plans/:id/checklists/:checklistId",
+              "host": ["{{baseUrl}}"],
+              "path": ["date-plans", ":id", "checklists", ":checklistId"]
+            },
+            "body": { "mode": "raw", "raw": "{\n  \"is_checked\": true\n}" }
+          }
+        },
+        {
+          "name": "Add Checklist Item",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/date-plans/:id/checklists",
+              "host": ["{{baseUrl}}"],
+              "path": ["date-plans", ":id", "checklists"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"item\": \"Buy flowers\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Checklist Item",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/date-plans/:id/checklists/:checklistId",
+              "host": ["{{baseUrl}}"],
+              "path": ["date-plans", ":id", "checklists", ":checklistId"]
+            }
+          }
+        },
+        {
+          "name": "Convert To Memory",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/date-plans/:id/convert-to-memory",
+              "host": ["{{baseUrl}}"],
+              "path": ["date-plans", ":id", "convert-to-memory"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Calendar",
+      "item": [
+        {
+          "name": "List Events",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/calendar/events?start=2026-05-01&end=2026-05-31",
+              "host": ["{{baseUrl}}"],
+              "path": ["calendar", "events"],
+              "query": [
+                { "key": "start", "value": "2026-05-01" },
+                { "key": "end", "value": "2026-05-31" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Custom Event",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/calendar/events",
+              "host": ["{{baseUrl}}"],
+              "path": ["calendar", "events"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Anniversary\",\n  \"description\": \"Celebrate\",\n  \"event_date\": \"2026-06-01T19:00:00+07:00\",\n  \"event_type\": \"custom\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Custom Event",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/calendar/events/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["calendar", "events", ":id"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Anniversary\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Custom Event",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/calendar/events/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["calendar", "events", ":id"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

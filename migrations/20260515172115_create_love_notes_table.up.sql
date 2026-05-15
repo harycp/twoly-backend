@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS love_notes (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    couple_id UUID NOT NULL REFERENCES couples(id) ON DELETE CASCADE,
+    sender_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    receiver_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    message TEXT NOT NULL,
+    unlock_at TIMESTAMP,
+    is_opened BOOLEAN DEFAULT FALSE,
+    opened_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

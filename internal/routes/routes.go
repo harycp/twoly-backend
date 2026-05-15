@@ -18,6 +18,7 @@ func SetupRoutes(r *gin.Engine) {
 	memoryRepo := repositories.NewMemoryRepository(db)
 	photoRepo := repositories.NewMemoryPhotoRepository(db)
 	datePlanRepo := repositories.NewDatePlanRepository(db)
+	calendarRepo := repositories.NewCalendarRepository(db)
 
 	// Services
 	cloudinarySvc := services.NewCloudinaryService()
@@ -26,6 +27,7 @@ func SetupRoutes(r *gin.Engine) {
 	memoryService := services.NewMemoryService(memoryRepo, coupleRepo)
 	photoService := services.NewMemoryPhotoService(photoRepo, memoryRepo, coupleRepo, cloudinarySvc)
 	datePlanService := services.NewDatePlanService(datePlanRepo, coupleRepo, memoryRepo)
+	calendarService := services.NewCalendarService(calendarRepo, memoryRepo, datePlanRepo, coupleRepo)
 
 	// Handlers
 	authHandler := handlers.NewAuthHandler(authService)
@@ -33,6 +35,7 @@ func SetupRoutes(r *gin.Engine) {
 	memoryHandler := handlers.NewMemoryHandler(memoryService)
 	photoHandler := handlers.NewMemoryPhotoHandler(photoService)
 	datePlanHandler := handlers.NewDatePlanHandler(datePlanService)
+	calendarHandler := handlers.NewCalendarHandler(calendarService)
 
 	v1 := r.Group("/api/v1")
 	{
@@ -86,6 +89,15 @@ func SetupRoutes(r *gin.Engine) {
 				datePlans.POST("/:id/checklists", datePlanHandler.AddChecklistItem)
 				datePlans.DELETE("/:id/checklists/:checklistId", datePlanHandler.DeleteChecklistItem)
 				datePlans.POST("/:id/convert-to-memory", datePlanHandler.ConvertToMemory)
+			}
+
+			// Calendar Routes
+			calendar := protected.Group("/calendar")
+			{
+				calendar.GET("/events", calendarHandler.GetEvents)
+				calendar.POST("/events", calendarHandler.CreateCustomEvent)
+				calendar.PUT("/events/:id", calendarHandler.UpdateCustomEvent)
+				calendar.DELETE("/events/:id", calendarHandler.DeleteCustomEvent)
 			}
 		}
 	}
