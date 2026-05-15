@@ -34,20 +34,18 @@ func (s *authService) Register(req dto.RegisterRequest) (dto.AuthResponse, error
 		return dto.AuthResponse{}, err
 	}
 
-	// 3. Siapkan model User
 	user := models.User{
 		Name:         req.Name,
+		Username:     req.Username,
 		Email:        req.Email,
 		PasswordHash: hashedPassword,
 	}
 
-	// 4. Simpan ke database
 	err = s.userRepo.CreateUser(&user)
 	if err != nil {
 		return dto.AuthResponse{}, err
 	}
 
-	// 5. Generate JWT Token
 	token, err := utils.GenerateToken(user.ID)
 	if err != nil {
 		return dto.AuthResponse{}, err
@@ -56,26 +54,24 @@ func (s *authService) Register(req dto.RegisterRequest) (dto.AuthResponse, error
 	return dto.AuthResponse{
 		AccessToken: token,
 		User: dto.UserResponse{
-			ID:    user.ID.String(),
-			Name:  user.Name,
-			Email: user.Email,
+			ID:       user.ID.String(),
+			Name:     user.Name,
+			Username: user.Username,
+			Email:    user.Email,
 		},
 	}, nil
 }
 
 func (s *authService) Login(req dto.LoginRequest) (dto.AuthResponse, error) {
-	// 1. Cari user berdasarkan email
 	user, err := s.userRepo.FindByEmail(req.Email)
 	if err != nil {
 		return dto.AuthResponse{}, errors.New("email atau password salah")
 	}
 
-	// 2. Bandingkan password
 	if !utils.CheckPasswordHash(req.Password, user.PasswordHash) {
 		return dto.AuthResponse{}, errors.New("email atau password salah")
 	}
 
-	// 3. Generate JWT Token
 	token, err := utils.GenerateToken(user.ID)
 	if err != nil {
 		return dto.AuthResponse{}, err
@@ -84,14 +80,14 @@ func (s *authService) Login(req dto.LoginRequest) (dto.AuthResponse, error) {
 	return dto.AuthResponse{
 		AccessToken: token,
 		User: dto.UserResponse{
-			ID:    user.ID.String(),
-			Name:  user.Name,
-			Email: user.Email,
+			ID:       user.ID.String(),
+			Name:     user.Name,
+			Username: user.Username,
+			Email:    user.Email,
 		},
 	}, nil
 }
 
-// Tambahkan fungsi GetMe di bawah ini
 func (s *authService) GetMe(userID string) (dto.UserResponse, error) {
 	user, err := s.userRepo.FindByID(userID)
 	if err != nil {
@@ -99,8 +95,9 @@ func (s *authService) GetMe(userID string) (dto.UserResponse, error) {
 	}
 
 	return dto.UserResponse{
-		ID:    user.ID.String(),
-		Name:  user.Name,
-		Email: user.Email,
+		ID:       user.ID.String(),
+		Name:     user.Name,
+		Username: user.Username,
+		Email:    user.Email,
 	}, nil
 }
