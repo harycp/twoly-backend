@@ -14,14 +14,14 @@ func RequireAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"message": "Akses ditolak, token tidak ditemukan"})
+			c.JSON(http.StatusUnauthorized, gin.H{"message": "Access denied, token not found"})
 			c.Abort()
 			return
 		}
 
 		parts := strings.Split(authHeader, " ")
 		if len(parts) != 2 || parts[0] != "Bearer" {
-			c.JSON(http.StatusUnauthorized, gin.H{"message": "Format token tidak valid"})
+			c.JSON(http.StatusUnauthorized, gin.H{"message": "Invalid token format"})
 			c.Abort()
 			return
 		}
@@ -31,13 +31,13 @@ func RequireAuth() gin.HandlerFunc {
 
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("metode signing tidak valid")
+				return nil, fmt.Errorf("invalid signing method")
 			}
 			return []byte(secret), nil
 		})
 
 		if err != nil || !token.Valid {
-			c.JSON(http.StatusUnauthorized, gin.H{"message": "Token tidak valid atau sudah kadaluarsa"})
+			c.JSON(http.StatusUnauthorized, gin.H{"message": "Token is invalid or expired"})
 			c.Abort()
 			return
 		}
@@ -48,7 +48,7 @@ func RequireAuth() gin.HandlerFunc {
 			c.Set("userID", userID)
 			c.Next()
 		} else {
-			c.JSON(http.StatusUnauthorized, gin.H{"message": "Gagal membaca token claims"})
+			c.JSON(http.StatusUnauthorized, gin.H{"message": "Failed to read token claims"})
 			c.Abort()
 			return
 		}

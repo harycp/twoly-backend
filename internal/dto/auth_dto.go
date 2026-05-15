@@ -8,8 +8,8 @@ type RegisterRequest struct {
 }
 
 type LoginRequest struct {
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required"`
+	EmailOrUsername string `json:"email_or_username" binding:"required"`
+	Password        string `json:"password" binding:"required"`
 }
 
 type AuthResponse struct {

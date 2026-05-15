@@ -14,7 +14,7 @@ import (
 func main() {
 	err := godotenv.Load()
 	if err != nil {
-		log.Println("⚠️  Warning: File .env tidak ditemukan, menggunakan environment system")
+		log.Println("Warning: File .env tidak ditemukan, menggunakan environment system")
 	}
 
 	config.ConnectDB()
@@ -28,8 +28,8 @@ func main() {
 		port = "8080"
 	}
 
-	log.Printf("🚀 Server berjalan di port: %s\n", port)
+	log.Printf("Server berjalan di port: %s\n", port)
 	if err := r.Run(":" + port); err != nil {
-		log.Fatalf("❌ Gagal menjalankan server: %v", err)
+		log.Fatalf("Gagal menjalankan server: %v", err)
 	}
 }

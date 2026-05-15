@@ -30,7 +30,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, gin.H{
-		"message": "Register success",
+		"message": "Registration successful",
 		"data":    res,
 	})
 }
@@ -49,7 +49,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Login success",
+		"message": "Login successful",
 		"data":    res,
 	})
 }
@@ -68,7 +68,7 @@ func (h *AuthHandler) GetMe(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Success fetch user profile",
+		"message": "User profile fetched successfully",
 		"data":    res,
 	})
 }

@@ -19,7 +19,7 @@ func SetupRoutes(r *gin.Engine) {
 	v1 := r.Group("/api/v1")
 	{
 		v1.GET("/health", func(c *gin.Context) {
-			c.JSON(200, gin.H{"status": "success", "message": "Twoly API is running perfectly 🚀"})
+				c.JSON(200, gin.H{"status": "success", "message": "Twoly API is running successfully 🚀"})
 		})
 
 		auth := v1.Group("/auth")

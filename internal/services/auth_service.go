@@ -63,13 +63,13 @@ func (s *authService) Register(req dto.RegisterRequest) (dto.AuthResponse, error
 }
 
 func (s *authService) Login(req dto.LoginRequest) (dto.AuthResponse, error) {
-	user, err := s.userRepo.FindByEmail(req.Email)
+	user, err := s.userRepo.FindByEmailOrUsername(req.EmailOrUsername)
 	if err != nil {
-		return dto.AuthResponse{}, errors.New("email atau password salah")
+		return dto.AuthResponse{}, errors.New("invalid email, username, or password")
 	}
 
 	if !utils.CheckPasswordHash(req.Password, user.PasswordHash) {
-		return dto.AuthResponse{}, errors.New("email atau password salah")
+		return dto.AuthResponse{}, errors.New("invalid email, username, or password")
 	}
 
 	token, err := utils.GenerateToken(user.ID)
@@ -91,7 +91,7 @@ func (s *authService) Login(req dto.LoginRequest) (dto.AuthResponse, error) {
 func (s *authService) GetMe(userID string) (dto.UserResponse, error) {
 	user, err := s.userRepo.FindByID(userID)
 	if err != nil {
-		return dto.UserResponse{}, errors.New("user tidak ditemukan")
+		return dto.UserResponse{}, errors.New("user not found")
 	}
 
 	return dto.UserResponse{
