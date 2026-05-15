@@ -7,7 +7,7 @@ import (
 
 type MemoryRepository interface {
 	CreateMemory(memory *models.Memory) error
-	FindAllByCoupleID(coupleID string) ([]models.Memory, error)
+	FindAllByCoupleID(coupleID string, month string) ([]models.Memory, error)
 	FindByID(id string, coupleID string) (*models.Memory, error)
 	UpdateMemory(memory *models.Memory) error
 	DeleteMemory(memory *models.Memory) error
@@ -25,9 +25,16 @@ func (r *memoryRepository) CreateMemory(memory *models.Memory) error {
 	return r.db.Create(memory).Error
 }
 
-func (r *memoryRepository) FindAllByCoupleID(coupleID string) ([]models.Memory, error) {
+func (r *memoryRepository) FindAllByCoupleID(coupleID string, month string) ([]models.Memory, error) {
 	var memories []models.Memory
-	err := r.db.Where("couple_id = ?", coupleID).Order("memory_date DESC").Find(&memories).Error
+	query := r.db.Where("couple_id = ?", coupleID)
+	
+	if month != "" {
+		// PostgreSQL spesifik: filter berdasarkan string YYYY-MM
+		query = query.Where("TO_CHAR(memory_date, 'YYYY-MM') = ?", month)
+	}
+
+	err := query.Order("memory_date DESC").Find(&memories).Error
 	return memories, err
 }
 

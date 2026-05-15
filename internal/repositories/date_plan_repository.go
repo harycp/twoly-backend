@@ -13,6 +13,8 @@ type DatePlanRepository interface {
 	DeleteDatePlan(datePlan *models.DatePlan) error
 	FindChecklistByID(checklistID string, planID string) (*models.DatePlanChecklist, error)
 	UpdateChecklist(checklist *models.DatePlanChecklist) error
+	AddChecklist(checklist *models.DatePlanChecklist) error
+	DeleteChecklist(checklist *models.DatePlanChecklist) error
 }
 
 type datePlanRepository struct {
@@ -68,4 +70,12 @@ func (r *datePlanRepository) FindChecklistByID(checklistID string, planID string
 
 func (r *datePlanRepository) UpdateChecklist(checklist *models.DatePlanChecklist) error {
 	return r.db.Save(checklist).Error
+}
+
+func (r *datePlanRepository) AddChecklist(checklist *models.DatePlanChecklist) error {
+	return r.db.Create(checklist).Error
+}
+
+func (r *datePlanRepository) DeleteChecklist(checklist *models.DatePlanChecklist) error {
+	return r.db.Delete(checklist).Error
 }

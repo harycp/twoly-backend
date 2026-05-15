@@ -19,6 +19,8 @@ type DatePlanService interface {
 	UpdateDatePlanStatus(userID string, planID string, req dto.UpdateDatePlanStatusRequest) (dto.DatePlanResponse, error)
 	ConvertToMemory(userID string, planID string) (dto.MemoryResponse, error)
 	UpdateChecklistItem(userID string, planID string, checklistID string, req dto.UpdateChecklistItemRequest) (dto.ChecklistItemResponse, error)
+	AddChecklistItem(userID string, planID string, req dto.AddChecklistItemRequest) (dto.ChecklistItemResponse, error)
+	DeleteChecklistItem(userID string, planID string, checklistID string) error
 }
 
 type datePlanService struct {
@@ -271,6 +273,52 @@ func (s *datePlanService) UpdateChecklistItem(userID string, planID string, chec
 		Item:      checklist.Item,
 		IsChecked: checklist.IsChecked,
 	}, nil
+}
+
+func (s *datePlanService) AddChecklistItem(userID string, planID string, req dto.AddChecklistItemRequest) (dto.ChecklistItemResponse, error) {
+	coupleID, err := s.getActiveCoupleID(userID)
+	if err != nil {
+		return dto.ChecklistItemResponse{}, err
+	}
+
+	plan, err := s.datePlanRepo.FindByID(planID, coupleID.String())
+	if err != nil || plan == nil {
+		return dto.ChecklistItemResponse{}, errors.New("date plan not found")
+	}
+
+	checklist := models.DatePlanChecklist{
+		DatePlanID: plan.ID,
+		Item:       req.Item,
+	}
+
+	if err := s.datePlanRepo.AddChecklist(&checklist); err != nil {
+		return dto.ChecklistItemResponse{}, errors.New("failed to add checklist item")
+	}
+
+	return dto.ChecklistItemResponse{
+		ID:        checklist.ID.String(),
+		Item:      checklist.Item,
+		IsChecked: checklist.IsChecked,
+	}, nil
+}
+
+func (s *datePlanService) DeleteChecklistItem(userID string, planID string, checklistID string) error {
+	coupleID, err := s.getActiveCoupleID(userID)
+	if err != nil {
+		return err
+	}
+
+	_, err = s.datePlanRepo.FindByID(planID, coupleID.String()) // Verify ownership
+	if err != nil {
+		return errors.New("date plan not found")
+	}
+
+	checklist, err := s.datePlanRepo.FindChecklistByID(checklistID, planID)
+	if err != nil || checklist == nil {
+		return errors.New("checklist item not found")
+	}
+
+	return s.datePlanRepo.DeleteChecklist(checklist)
 }
 
 func (s *datePlanService) mapToResponse(p models.DatePlan) dto.DatePlanResponse {

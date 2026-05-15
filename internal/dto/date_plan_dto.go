@@ -29,6 +29,10 @@ type UpdateChecklistItemRequest struct {
 	IsChecked bool `json:"is_checked"`
 }
 
+type AddChecklistItemRequest struct {
+	Item string `json:"item" binding:"required"`
+}
+
 type ChecklistItemResponse struct {
 	ID        string `json:"id"`
 	Item      string `json:"item"`

@@ -166,3 +166,41 @@ func (h *DatePlanHandler) UpdateChecklistItem(c *gin.Context) {
 		"data":    res,
 	})
 }
+
+func (h *DatePlanHandler) AddChecklistItem(c *gin.Context) {
+	userID, _ := c.Get("userID")
+	planID := c.Param("id")
+
+	var req dto.AddChecklistItemRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Validation failed", "error": err.Error()})
+		return
+	}
+
+	res, err := h.datePlanService.AddChecklistItem(userID.(string), planID, req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"message": "Checklist item added successfully",
+		"data":    res,
+	})
+}
+
+func (h *DatePlanHandler) DeleteChecklistItem(c *gin.Context) {
+	userID, _ := c.Get("userID")
+	planID := c.Param("id")
+	checklistID := c.Param("checklistId")
+
+	err := h.datePlanService.DeleteChecklistItem(userID.(string), planID, checklistID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Checklist item deleted successfully",
+	})
+}

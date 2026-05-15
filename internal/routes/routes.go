@@ -37,7 +37,7 @@ func SetupRoutes(r *gin.Engine) {
 	v1 := r.Group("/api/v1")
 	{
 		v1.GET("/health", func(c *gin.Context) {
-			c.JSON(200, gin.H{"status": "success", "message": "Twoly API is running perfectly "})
+			c.JSON(200, gin.H{"status": "success", "message": "Twoly API is running perfectly"})
 		})
 
 		auth := v1.Group("/auth")
@@ -83,6 +83,8 @@ func SetupRoutes(r *gin.Engine) {
 				datePlans.DELETE("/:id", datePlanHandler.DeleteDatePlan)
 				datePlans.PATCH("/:id/status", datePlanHandler.UpdateStatus)
 				datePlans.PATCH("/:id/checklists/:checklistId", datePlanHandler.UpdateChecklistItem)
+				datePlans.POST("/:id/checklists", datePlanHandler.AddChecklistItem)
+				datePlans.DELETE("/:id/checklists/:checklistId", datePlanHandler.DeleteChecklistItem)
 				datePlans.POST("/:id/convert-to-memory", datePlanHandler.ConvertToMemory)
 			}
 		}

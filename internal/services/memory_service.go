@@ -13,7 +13,7 @@ import (
 
 type MemoryService interface {
 	CreateMemory(userID string, req dto.CreateMemoryRequest) (dto.MemoryResponse, error)
-	GetAllMemories(userID string) ([]dto.MemoryResponse, error)
+	GetAllMemories(userID string, month string) ([]dto.MemoryResponse, error)
 	GetMemoryDetail(userID string, memoryID string) (dto.MemoryResponse, error)
 	UpdateMemory(userID string, memoryID string, req dto.UpdateMemoryRequest) (dto.MemoryResponse, error)
 	DeleteMemory(userID string, memoryID string) error
@@ -69,13 +69,13 @@ func (s *memoryService) CreateMemory(userID string, req dto.CreateMemoryRequest)
 	return s.mapToResponse(memory), nil
 }
 
-func (s *memoryService) GetAllMemories(userID string) ([]dto.MemoryResponse, error) {
+func (s *memoryService) GetAllMemories(userID string, month string) ([]dto.MemoryResponse, error) {
 	coupleID, err := s.getActiveCoupleID(userID)
 	if err != nil {
 		return nil, err
 	}
 
-	memories, err := s.memoryRepo.FindAllByCoupleID(coupleID.String())
+	memories, err := s.memoryRepo.FindAllByCoupleID(coupleID.String(), month)
 	if err != nil {
 		return nil, err
 	}
