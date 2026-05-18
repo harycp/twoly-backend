@@ -68,6 +68,21 @@ func (h *MemoryPhotoHandler) GetPhotos(c *gin.Context) {
 	})
 }
 
+func (h *MemoryPhotoHandler) GetGalleryPhotos(c *gin.Context) {
+	userID, _ := c.Get("userID")
+
+	res, err := h.photoService.GetGalleryPhotos(userID.(string))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Gallery photos fetched successfully",
+		"data":    res,
+	})
+}
+
 func (h *MemoryPhotoHandler) DeletePhoto(c *gin.Context) {
 	userID, _ := c.Get("userID")
 	memoryID := c.Param("id")

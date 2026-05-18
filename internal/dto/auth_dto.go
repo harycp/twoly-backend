@@ -1,5 +1,7 @@
 package dto
 
+import "mime/multipart"
+
 type RegisterRequest struct {
 	Name     string `json:"name" binding:"required"`
 	Username string `json:"username" binding:"required"`
@@ -29,4 +31,5 @@ type UpdateProfileRequest struct {
 	Name      string  `json:"name"`
 	Username  string  `json:"username" binding:"omitempty,min=3,max=50"`
 	AvatarURL *string `json:"avatar_url"`
+	Avatar    *multipart.FileHeader `json:"-" form:"-"`
 }

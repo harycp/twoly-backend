@@ -15,6 +15,7 @@ import (
 type MemoryPhotoService interface {
 	UploadPhotos(userID string, memoryID string, fileHeaders []*multipart.FileHeader, captions []string) ([]dto.MemoryPhotoResponse, error)
 	GetPhotosByMemoryID(userID string, memoryID string) ([]dto.MemoryPhotoResponse, error)
+	GetGalleryPhotos(userID string) ([]dto.GalleryPhotoResponse, error)
 	DeletePhoto(userID string, memoryID string, photoID string) error
 }
 
@@ -131,6 +132,25 @@ func (s *memoryPhotoService) GetPhotosByMemoryID(userID string, memoryID string)
 	return response, nil
 }
 
+func (s *memoryPhotoService) GetGalleryPhotos(userID string) ([]dto.GalleryPhotoResponse, error) {
+	couple, err := s.coupleRepo.FindByUserID(userID)
+	if err != nil || couple == nil || couple.Status != "active" {
+		return nil, errors.New("you do not have an active couple")
+	}
+
+	photos, err := s.photoRepo.FindAllByCoupleID(couple.ID.String())
+	if err != nil {
+		return nil, err
+	}
+
+	response := make([]dto.GalleryPhotoResponse, 0, len(photos))
+	for _, p := range photos {
+		response = append(response, s.mapToGalleryResponse(p))
+	}
+
+	return response, nil
+}
+
 func (s *memoryPhotoService) DeletePhoto(userID string, memoryID string, photoID string) error {
 	_, err := s.verifyMemoryAccess(userID, memoryID)
 	if err != nil {
@@ -160,5 +180,29 @@ func (s *memoryPhotoService) mapToResponse(p models.MemoryPhoto) dto.MemoryPhoto
 		CloudinaryPublicID: p.CloudinaryPublicID,
 		Caption:            p.Caption,
 		CreatedAt:          p.CreatedAt,
+	}
+}
+
+func (s *memoryPhotoService) mapToGalleryResponse(p models.MemoryPhoto) dto.GalleryPhotoResponse {
+	return dto.GalleryPhotoResponse{
+		ID:                 p.ID.String(),
+		MemoryID:           p.MemoryID.String(),
+		UploadedBy:         p.UploadedBy.String(),
+		PhotoURL:           p.PhotoURL,
+		CloudinaryPublicID: p.CloudinaryPublicID,
+		Caption:            p.Caption,
+		CreatedAt:          p.CreatedAt,
+		Memory: dto.GalleryMemoryDetail{
+			ID:           p.Memory.ID.String(),
+			Title:        p.Memory.Title,
+			Description:  p.Memory.Description,
+			MemoryDate:   p.Memory.MemoryDate,
+			LocationName: p.Memory.LocationName,
+			Latitude:     p.Memory.Latitude,
+			Longitude:    p.Memory.Longitude,
+			Mood:         p.Memory.Mood,
+			Tags:         []string(p.Memory.Tags),
+			CreatedAt:    p.Memory.CreatedAt,
+		},
 	}
 }

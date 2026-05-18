@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/harycp/twoly-backend/internal/dto"
@@ -77,9 +78,20 @@ func (h *AuthHandler) UpdateProfile(c *gin.Context) {
 	userID, _ := c.Get("userID")
 
 	var req dto.UpdateProfileRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "Validation failed", "error": err.Error()})
-		return
+
+	if strings.HasPrefix(c.GetHeader("Content-Type"), "multipart/form-data") {
+		req.Name = c.PostForm("name")
+		req.Username = c.PostForm("username")
+
+		avatarFile, err := c.FormFile("avatar")
+		if err == nil {
+			req.Avatar = avatarFile
+		}
+	} else {
+		if err := c.ShouldBindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "Validation failed", "error": err.Error()})
+			return
+		}
 	}
 
 	res, err := h.authService.UpdateProfile(userID.(string), req)

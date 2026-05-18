@@ -17,11 +17,12 @@ type AuthService interface {
 }
 
 type authService struct {
-	userRepo repositories.UserRepository
+	userRepo      repositories.UserRepository
+	cloudinarySvc CloudinaryService
 }
 
-func NewAuthService(userRepo repositories.UserRepository) AuthService {
-	return &authService{userRepo}
+func NewAuthService(userRepo repositories.UserRepository, cloudinarySvc CloudinaryService) AuthService {
+	return &authService{userRepo, cloudinarySvc}
 }
 
 func (s *authService) Register(req dto.RegisterRequest) (dto.AuthResponse, error) {
@@ -121,9 +122,31 @@ func (s *authService) UpdateProfile(userID string, req dto.UpdateProfileRequest)
 	if req.Name != "" {
 		user.Name = req.Name
 	}
-	
+
+	if req.Avatar != nil {
+		file, err := req.Avatar.Open()
+		if err != nil {
+			return dto.UserResponse{}, errors.New("failed to read avatar file")
+		}
+
+		oldAvatarPublicID := user.AvatarPublicID
+		secureURL, newPublicID, err := s.cloudinarySvc.UploadImage(file, user.ID.String()+"_avatar")
+		file.Close()
+		if err != nil {
+			return dto.UserResponse{}, errors.New("failed to upload avatar")
+		}
+
+		if oldAvatarPublicID != nil && *oldAvatarPublicID != "" {
+			_ = s.cloudinarySvc.DeleteImage(*oldAvatarPublicID)
+		}
+
+		user.AvatarURL = &secureURL
+		user.AvatarPublicID = &newPublicID
+	}
+
 	if req.AvatarURL != nil {
 		user.AvatarURL = req.AvatarURL
+		user.AvatarPublicID = nil
 	}
 
 	if err := s.userRepo.UpdateUser(user); err != nil {

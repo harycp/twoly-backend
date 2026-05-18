@@ -23,7 +23,7 @@ func SetupRoutes(r *gin.Engine) {
 
 	// Services
 	cloudinarySvc := services.NewCloudinaryService()
-	authService := services.NewAuthService(userRepo)
+	authService := services.NewAuthService(userRepo, cloudinarySvc)
 	coupleService := services.NewCoupleService(coupleRepo)
 	memoryService := services.NewMemoryService(memoryRepo, coupleRepo)
 	photoService := services.NewMemoryPhotoService(photoRepo, memoryRepo, coupleRepo, cloudinarySvc)
@@ -43,7 +43,7 @@ func SetupRoutes(r *gin.Engine) {
 	v1 := r.Group("/api/v1")
 	{
 		v1.GET("/health", func(c *gin.Context) {
-			c.JSON(200, gin.H{"status": "success", "message": "Twoly API is running perfectly"})
+			c.JSON(200, gin.H{"status": "success", "message": "Twoly API is running perfectly 🚀"})
 		})
 
 		auth := v1.Group("/auth")
@@ -52,7 +52,7 @@ func SetupRoutes(r *gin.Engine) {
 			auth.POST("/login", authHandler.Login)
 		}
 
-		protected := v1.Group("/")
+		protected := v1.Group("")
 		protected.Use(middleware.RequireAuth())
 		{
 			protected.GET("/auth/me", authHandler.GetMe)
@@ -70,8 +70,9 @@ func SetupRoutes(r *gin.Engine) {
 			// Memory Routes
 			memories := protected.Group("/memories")
 			{
-				memories.POST("/", memoryHandler.CreateMemory)
-				memories.GET("/", memoryHandler.GetAllMemories)
+				memories.POST("", memoryHandler.CreateMemory)
+				memories.GET("", memoryHandler.GetAllMemories)
+				memories.GET("/photos", photoHandler.GetGalleryPhotos)
 				memories.GET("/:id", memoryHandler.GetMemoryDetail)
 				memories.PUT("/:id", memoryHandler.UpdateMemory)
 				memories.DELETE("/:id", memoryHandler.DeleteMemory)
@@ -84,8 +85,8 @@ func SetupRoutes(r *gin.Engine) {
 			// Date Plan Routes
 			datePlans := protected.Group("/date-plans")
 			{
-				datePlans.POST("/", datePlanHandler.CreateDatePlan)
-				datePlans.GET("/", datePlanHandler.GetAllDatePlans)
+				datePlans.POST("", datePlanHandler.CreateDatePlan)
+				datePlans.GET("", datePlanHandler.GetAllDatePlans)
 				datePlans.GET("/:id", datePlanHandler.GetDatePlanDetail)
 				datePlans.PUT("/:id", datePlanHandler.UpdateDatePlan)
 				datePlans.DELETE("/:id", datePlanHandler.DeleteDatePlan)
@@ -108,8 +109,8 @@ func SetupRoutes(r *gin.Engine) {
 			// Love Notes Routes
 			loveNotes := protected.Group("/love-notes")
 			{
-				loveNotes.POST("/", loveNoteHandler.CreateLoveNote)
-				loveNotes.GET("/", loveNoteHandler.GetLoveNotes)
+				loveNotes.POST("", loveNoteHandler.CreateLoveNote)
+				loveNotes.GET("", loveNoteHandler.GetLoveNotes)
 				loveNotes.POST("/:id/open", loveNoteHandler.OpenLoveNote)
 				loveNotes.DELETE("/:id", loveNoteHandler.DeleteLoveNote)
 			}

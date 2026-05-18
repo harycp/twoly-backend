@@ -8,6 +8,7 @@ import (
 type MemoryPhotoRepository interface {
 	CreatePhoto(photo *models.MemoryPhoto) error
 	FindByMemoryID(memoryID string) ([]models.MemoryPhoto, error)
+	FindAllByCoupleID(coupleID string) ([]models.MemoryPhoto, error)
 	FindByID(id string) (*models.MemoryPhoto, error)
 	DeletePhoto(photo *models.MemoryPhoto) error
 }
@@ -27,6 +28,21 @@ func (r *memoryPhotoRepository) CreatePhoto(photo *models.MemoryPhoto) error {
 func (r *memoryPhotoRepository) FindByMemoryID(memoryID string) ([]models.MemoryPhoto, error) {
 	var photos []models.MemoryPhoto
 	err := r.db.Where("memory_id = ?", memoryID).Order("created_at DESC").Find(&photos).Error
+	return photos, err
+}
+
+func (r *memoryPhotoRepository) FindAllByCoupleID(coupleID string) ([]models.MemoryPhoto, error) {
+	var photos []models.MemoryPhoto
+
+	query := r.db.Model(&models.MemoryPhoto{}).
+		Joins("JOIN memories ON memories.id = memory_photos.memory_id").
+		Where("memories.couple_id = ? AND memories.deleted_at IS NULL", coupleID)
+
+	err := query.
+		Preload("Memory").
+		Order("memories.memory_date DESC, memory_photos.created_at DESC").
+		Find(&photos).Error
+
 	return photos, err
 }
 

@@ -7,7 +7,16 @@
   },
   "variable": [
     { "key": "baseUrl", "value": "http://localhost:8080/api/v1" },
-    { "key": "token", "value": "" }
+    { "key": "token", "value": "" },
+    { "key": "memoryId", "value": "" },
+    { "key": "photoId", "value": "" },
+    { "key": "datePlanId", "value": "" },
+    { "key": "checklistId", "value": "" },
+    { "key": "eventId", "value": "" },
+    { "key": "loveNoteId", "value": "" },
+    { "key": "inviteCode", "value": "" },
+    { "key": "userId", "value": "" },
+    { "key": "coupleId", "value": "" }
   ],
   "item": [
     {
@@ -43,6 +52,29 @@
               "mode": "raw",
               "raw": "{\n  \"email_or_username\": \"alice@example.com\",\n  \"password\": \"secret123\"\n}"
             }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Login status is success', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.data && jsonData.data.access_token) {",
+                  "  pm.collectionVariables.set('token', jsonData.data.access_token);",
+                  "}",
+                  "",
+                  "if (jsonData && jsonData.data && jsonData.data.user && jsonData.data.user.id) {",
+                  "  pm.collectionVariables.set('userId', jsonData.data.user.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
           }
         },
         {
@@ -58,7 +90,7 @@
           }
         },
         {
-          "name": "Update Profile",
+          "name": "Update Profile (JSON)",
           "request": {
             "method": "PUT",
             "header": [
@@ -73,6 +105,30 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"Alice Updated\",\n  \"username\": \"alice_new\",\n  \"avatar_url\": \"https://example.com/avatar.jpg\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Profile (Upload Avatar)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "me"]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "name", "type": "text", "value": "Alice Updated" },
+                { "key": "username", "type": "text", "value": "alice_new" },
+                {
+                  "key": "avatar",
+                  "type": "file",
+                  "src": "<path-to-avatar-file>"
+                }
+              ]
             }
           }
         }
@@ -98,7 +154,20 @@
               "mode": "raw",
               "raw": "{\n  \"anniversary_date\": \"2026-06-01\"\n}"
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const jsonData = pm.response.json();",
+                  "if (jsonData?.data?.invite_code) pm.collectionVariables.set('inviteCode', jsonData.data.invite_code);",
+                  "if (jsonData?.data?.couple_id) pm.collectionVariables.set('coupleId', jsonData.data.couple_id);"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Join Couple",
@@ -115,7 +184,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"invite_code\": \"ABCD1234\"\n}"
+              "raw": "{\n  \"invite_code\": \"{{inviteCode}}\"\n}"
             }
           }
         },
@@ -172,7 +241,19 @@
               "mode": "raw",
               "raw": "{\n  \"title\": \"Beach day\",\n  \"description\": \"Sunset with partner\",\n  \"memory_date\": \"2026-05-15\",\n  \"location_name\": \"Kuta Beach\",\n  \"latitude\": 12.34,\n  \"longitude\": 56.78,\n  \"mood\": \"happy\",\n  \"tags\": [\"vacation\",\"sunset\"]\n}"
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const jsonData = pm.response.json();",
+                  "if (jsonData?.data?.id) pm.collectionVariables.set('memoryId', jsonData.data.id);"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "List Memories",
@@ -193,9 +274,9 @@
             "method": "GET",
             "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": {
-              "raw": "{{baseUrl}}/memories/:id",
+              "raw": "{{baseUrl}}/memories/{{memoryId}}",
               "host": ["{{baseUrl}}"],
-              "path": ["memories", ":id"]
+              "path": ["memories", "{{memoryId}}"]
             }
           }
         },
@@ -208,13 +289,13 @@
               { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
             "url": {
-              "raw": "{{baseUrl}}/memories/:id",
+              "raw": "{{baseUrl}}/memories/{{memoryId}}",
               "host": ["{{baseUrl}}"],
-              "path": ["memories", ":id"]
+              "path": ["memories", "{{memoryId}}"]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Updated title\",\n  \"notes\": \"optional\"\n}"
+              "raw": "{\n  \"title\": \"Updated title\",\n  \"description\": \"Updated description\",\n  \"memory_date\": \"2026-05-16\",\n  \"location_name\": \"Seminyak Beach\",\n  \"latitude\": 12.35,\n  \"longitude\": 56.79,\n  \"mood\": \"excited\",\n  \"tags\": [\"vacation\", \"sunset\", \"updated\"]\n}"
             }
           }
         },
@@ -224,9 +305,9 @@
             "method": "DELETE",
             "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": {
-              "raw": "{{baseUrl}}/memories/:id",
+              "raw": "{{baseUrl}}/memories/{{memoryId}}",
               "host": ["{{baseUrl}}"],
-              "path": ["memories", ":id"]
+              "path": ["memories", "{{memoryId}}"]
             }
           }
         }
@@ -241,9 +322,9 @@
             "method": "POST",
             "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": {
-              "raw": "{{baseUrl}}/memories/:id/photos",
+              "raw": "{{baseUrl}}/memories/{{memoryId}}/photos",
               "host": ["{{baseUrl}}"],
-              "path": ["memories", ":id", "photos"]
+              "path": ["memories", "{{memoryId}}", "photos"]
             },
             "body": {
               "mode": "formdata",
@@ -254,7 +335,21 @@
                 { "key": "captions", "type": "text", "value": "Second photo" }
               ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const jsonData = pm.response.json();",
+                  "if (Array.isArray(jsonData?.data) && jsonData.data.length > 0 && jsonData.data[0]?.id) {",
+                  "  pm.collectionVariables.set('photoId', jsonData.data[0].id);",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Get Photos",
@@ -262,9 +357,21 @@
             "method": "GET",
             "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": {
-              "raw": "{{baseUrl}}/memories/:id/photos",
+              "raw": "{{baseUrl}}/memories/{{memoryId}}/photos",
               "host": ["{{baseUrl}}"],
-              "path": ["memories", ":id", "photos"]
+              "path": ["memories", "{{memoryId}}", "photos"]
+            }
+          }
+        },
+        {
+          "name": "Get Gallery Photos",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/memories/photos",
+              "host": ["{{baseUrl}}"],
+              "path": ["memories", "photos"]
             }
           }
         },
@@ -274,9 +381,9 @@
             "method": "DELETE",
             "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": {
-              "raw": "{{baseUrl}}/memories/:id/photos/:photoId",
+              "raw": "{{baseUrl}}/memories/{{memoryId}}/photos/{{photoId}}",
               "host": ["{{baseUrl}}"],
-              "path": ["memories", ":id", "photos", ":photoId"]
+              "path": ["memories", "{{memoryId}}", "photos", "{{photoId}}"]
             }
           }
         }
@@ -302,7 +409,19 @@
               "mode": "raw",
               "raw": "{\n  \"title\": \"Dinner\",\n  \"notes\": \"Book table\",\n  \"plan_date\": \"2026-05-20T19:00:00+07:00\",\n  \"location_name\": \"Restaurant\",\n  \"latitude\": 1.23,\n  \"longitude\": 4.56,\n  \"checklists\": [\"Call venue\", \"Reserve parking\"]\n}"
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const jsonData = pm.response.json();",
+                  "if (jsonData?.data?.id) pm.collectionVariables.set('datePlanId', jsonData.data.id);"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "List Date Plans",
@@ -323,9 +442,9 @@
             "method": "GET",
             "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": {
-              "raw": "{{baseUrl}}/date-plans/:id",
+              "raw": "{{baseUrl}}/date-plans/{{datePlanId}}",
               "host": ["{{baseUrl}}"],
-              "path": ["date-plans", ":id"]
+              "path": ["date-plans", "{{datePlanId}}"]
             }
           }
         },
@@ -338,9 +457,9 @@
               { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
             "url": {
-              "raw": "{{baseUrl}}/date-plans/:id",
+              "raw": "{{baseUrl}}/date-plans/{{datePlanId}}",
               "host": ["{{baseUrl}}"],
-              "path": ["date-plans", ":id"]
+              "path": ["date-plans", "{{datePlanId}}"]
             },
             "body": {
               "mode": "raw",
@@ -354,9 +473,9 @@
             "method": "DELETE",
             "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": {
-              "raw": "{{baseUrl}}/date-plans/:id",
+              "raw": "{{baseUrl}}/date-plans/{{datePlanId}}",
               "host": ["{{baseUrl}}"],
-              "path": ["date-plans", ":id"]
+              "path": ["date-plans", "{{datePlanId}}"]
             }
           }
         },
@@ -369,9 +488,9 @@
               { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
             "url": {
-              "raw": "{{baseUrl}}/date-plans/:id/status",
+              "raw": "{{baseUrl}}/date-plans/{{datePlanId}}/status",
               "host": ["{{baseUrl}}"],
-              "path": ["date-plans", ":id", "status"]
+              "path": ["date-plans", "{{datePlanId}}", "status"]
             },
             "body": {
               "mode": "raw",
@@ -388,9 +507,9 @@
               { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
             "url": {
-              "raw": "{{baseUrl}}/date-plans/:id/checklists/:checklistId",
+              "raw": "{{baseUrl}}/date-plans/{{datePlanId}}/checklists/{{checklistId}}",
               "host": ["{{baseUrl}}"],
-              "path": ["date-plans", ":id", "checklists", ":checklistId"]
+              "path": ["date-plans", "{{datePlanId}}", "checklists", "{{checklistId}}"]
             },
             "body": { "mode": "raw", "raw": "{\n  \"is_checked\": true\n}" }
           }
@@ -404,15 +523,27 @@
               { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
             "url": {
-              "raw": "{{baseUrl}}/date-plans/:id/checklists",
+              "raw": "{{baseUrl}}/date-plans/{{datePlanId}}/checklists",
               "host": ["{{baseUrl}}"],
-              "path": ["date-plans", ":id", "checklists"]
+              "path": ["date-plans", "{{datePlanId}}", "checklists"]
             },
             "body": {
               "mode": "raw",
               "raw": "{\n  \"item\": \"Buy flowers\"\n}"
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const jsonData = pm.response.json();",
+                  "if (jsonData?.data?.id) pm.collectionVariables.set('checklistId', jsonData.data.id);"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Delete Checklist Item",
@@ -420,9 +551,9 @@
             "method": "DELETE",
             "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": {
-              "raw": "{{baseUrl}}/date-plans/:id/checklists/:checklistId",
+              "raw": "{{baseUrl}}/date-plans/{{datePlanId}}/checklists/{{checklistId}}",
               "host": ["{{baseUrl}}"],
-              "path": ["date-plans", ":id", "checklists", ":checklistId"]
+              "path": ["date-plans", "{{datePlanId}}", "checklists", "{{checklistId}}"]
             }
           }
         },
@@ -432,9 +563,9 @@
             "method": "POST",
             "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": {
-              "raw": "{{baseUrl}}/date-plans/:id/convert-to-memory",
+              "raw": "{{baseUrl}}/date-plans/{{datePlanId}}/convert-to-memory",
               "host": ["{{baseUrl}}"],
-              "path": ["date-plans", ":id", "convert-to-memory"]
+              "path": ["date-plans", "{{datePlanId}}", "convert-to-memory"]
             }
           }
         }
@@ -476,7 +607,19 @@
               "mode": "raw",
               "raw": "{\n  \"title\": \"Anniversary\",\n  \"description\": \"Celebrate\",\n  \"event_date\": \"2026-06-01T19:00:00+07:00\",\n  \"event_type\": \"custom\"\n}"
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const jsonData = pm.response.json();",
+                  "if (jsonData?.data?.id) pm.collectionVariables.set('eventId', jsonData.data.id);"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Update Custom Event",
@@ -487,9 +630,9 @@
               { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
             "url": {
-              "raw": "{{baseUrl}}/calendar/events/:id",
+              "raw": "{{baseUrl}}/calendar/events/{{eventId}}",
               "host": ["{{baseUrl}}"],
-              "path": ["calendar", "events", ":id"]
+              "path": ["calendar", "events", "{{eventId}}"]
             },
             "body": {
               "mode": "raw",
@@ -503,9 +646,9 @@
             "method": "DELETE",
             "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": {
-              "raw": "{{baseUrl}}/calendar/events/:id",
+              "raw": "{{baseUrl}}/calendar/events/{{eventId}}",
               "host": ["{{baseUrl}}"],
-              "path": ["calendar", "events", ":id"]
+              "path": ["calendar", "events", "{{eventId}}"]
             }
           }
         }
@@ -531,7 +674,19 @@
               "mode": "raw",
               "raw": "{\n  \"message\": \"You make every day better\",\n  \"unlock_at\": \"2026-06-01T19:00:00+07:00\"\n}"
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const jsonData = pm.response.json();",
+                  "if (jsonData?.data?.id) pm.collectionVariables.set('loveNoteId', jsonData.data.id);"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Get Love Notes",
@@ -551,9 +706,9 @@
             "method": "POST",
             "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": {
-              "raw": "{{baseUrl}}/love-notes/:id/open",
+              "raw": "{{baseUrl}}/love-notes/{{loveNoteId}}/open",
               "host": ["{{baseUrl}}"],
-              "path": ["love-notes", ":id", "open"]
+              "path": ["love-notes", "{{loveNoteId}}", "open"]
             }
           }
         },
@@ -563,9 +718,9 @@
             "method": "DELETE",
             "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": {
-              "raw": "{{baseUrl}}/love-notes/:id",
+              "raw": "{{baseUrl}}/love-notes/{{loveNoteId}}",
               "host": ["{{baseUrl}}"],
-              "path": ["love-notes", ":id"]
+              "path": ["love-notes", "{{loveNoteId}}"]
             }
           }
         }
