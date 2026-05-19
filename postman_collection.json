@@ -75,7 +75,6 @@
               }
             }
           ]
-          }
         },
         {
           "name": "Get Me",
@@ -509,7 +508,12 @@
             "url": {
               "raw": "{{baseUrl}}/date-plans/{{datePlanId}}/checklists/{{checklistId}}",
               "host": ["{{baseUrl}}"],
-              "path": ["date-plans", "{{datePlanId}}", "checklists", "{{checklistId}}"]
+              "path": [
+                "date-plans",
+                "{{datePlanId}}",
+                "checklists",
+                "{{checklistId}}"
+              ]
             },
             "body": { "mode": "raw", "raw": "{\n  \"is_checked\": true\n}" }
           }
@@ -553,7 +557,12 @@
             "url": {
               "raw": "{{baseUrl}}/date-plans/{{datePlanId}}/checklists/{{checklistId}}",
               "host": ["{{baseUrl}}"],
-              "path": ["date-plans", "{{datePlanId}}", "checklists", "{{checklistId}}"]
+              "path": [
+                "date-plans",
+                "{{datePlanId}}",
+                "checklists",
+                "{{checklistId}}"
+              ]
             }
           }
         },
@@ -567,7 +576,29 @@
               "host": ["{{baseUrl}}"],
               "path": ["date-plans", "{{datePlanId}}", "convert-to-memory"]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  pm.test('Convert to memory success', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "  });",
+                  "  const jsonData = pm.response.json();",
+                  "  if (jsonData?.data?.id) pm.collectionVariables.set('memoryId', jsonData.data.id);",
+                  "} else if (pm.response.code === 400) {",
+                  "  pm.test('Detect duplicate conversion attempt', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.message).to.include('already been converted');",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ]
         }
       ]
     },

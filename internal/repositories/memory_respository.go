@@ -12,6 +12,7 @@ type MemoryRepository interface {
 	FindAllByCoupleID(coupleID string, month string) ([]models.Memory, error)
 	FindAllByDateRange(coupleID string, start time.Time, end time.Time) ([]models.Memory, error)
 	FindByID(id string, coupleID string) (*models.Memory, error)
+	FindByConvertedFromDatePlanID(datePlanID string) (*models.Memory, error)
 	UpdateMemory(memory *models.Memory) error
 	DeleteMemory(memory *models.Memory) error
 }
@@ -50,6 +51,15 @@ func (r *memoryRepository) FindAllByDateRange(coupleID string, start time.Time, 
 func (r *memoryRepository) FindByID(id string, coupleID string) (*models.Memory, error) {
 	var memory models.Memory
 	err := r.db.Where("id = ? AND couple_id = ?", id, coupleID).First(&memory).Error
+	if err != nil {
+		return nil, err
+	}
+	return &memory, nil
+}
+
+func (r *memoryRepository) FindByConvertedFromDatePlanID(datePlanID string) (*models.Memory, error) {
+	var memory models.Memory
+	err := r.db.Where("converted_from_date_plan_id = ?", datePlanID).First(&memory).Error
 	if err != nil {
 		return nil, err
 	}

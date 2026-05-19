@@ -209,23 +209,31 @@ func (s *datePlanService) ConvertToMemory(userID string, planID string) (dto.Mem
 		return dto.MemoryResponse{}, errors.New("date plan not found")
 	}
 
+	// Check if this date plan has already been converted to a memory
+	existingMemory, err := s.memoryRepo.FindByConvertedFromDatePlanID(planID)
+	if err == nil && existingMemory != nil {
+		return dto.MemoryResponse{}, errors.New("this date plan has already been converted to a memory")
+	}
+
 	if plan.Status != "completed" {
 		plan.Status = "completed"
 		_ = s.datePlanRepo.UpdateDatePlan(plan)
 	}
 
 	userUUID, _ := uuid.Parse(userID)
+	planUUID, _ := uuid.Parse(planID)
 	
 	// Create a new Memory record using data from DatePlan
 	memory := models.Memory{
-		CoupleID:     coupleID,
-		CreatedBy:    userUUID,
-		Title:        plan.Title,
-		Description:  plan.Notes,
-		MemoryDate:   plan.PlanDate, 
-		LocationName: plan.LocationName,
-		Latitude:     plan.Latitude,
-		Longitude:    plan.Longitude,
+		CoupleID:                coupleID,
+		CreatedBy:               userUUID,
+		Title:                   plan.Title,
+		Description:             plan.Notes,
+		MemoryDate:              plan.PlanDate, 
+		LocationName:            plan.LocationName,
+		Latitude:                plan.Latitude,
+		Longitude:               plan.Longitude,
+		ConvertedFromDatePlanID: &planUUID,
 	}
 
 	if err := s.memoryRepo.CreateMemory(&memory); err != nil {
