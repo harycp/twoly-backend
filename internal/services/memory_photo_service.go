@@ -73,7 +73,7 @@ func (s *memoryPhotoService) UploadPhotos(userID string, memoryID string, fileHe
 
 		// Upload ke Cloudinary
 		uniqueFilename := uuid.New().String()
-		secureURL, publicID, err := s.cloudinarySvc.UploadImage(file, uniqueFilename)
+		secureURL, publicID, err := s.cloudinarySvc.UploadImage(file, uniqueFilename, "")
 		file.Close() // Pastikan file ditutup setelah diupload
 
 		if err != nil {

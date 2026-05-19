@@ -106,6 +106,7 @@ CLOUDINARY_CLOUD_NAME=your-cloudinary-cloud-name
 CLOUDINARY_API_KEY=your-cloudinary-api-key
 CLOUDINARY_API_SECRET=your-cloudinary-api-secret
 CLOUDINARY_FOLDER=twoly/memories
+CLOUDINARY_AVATAR_FOLDER=twoly/avatar
 
 MAX_IMAGE_UPLOAD_SIZE_MB=5
 ```

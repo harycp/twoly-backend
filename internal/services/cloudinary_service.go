@@ -10,7 +10,7 @@ import (
 )
 
 type CloudinaryService interface {
-	UploadImage(file multipart.File, filename string) (string, string, error)
+	UploadImage(file multipart.File, filename string, folder string) (string, string, error)
 	DeleteImage(publicID string) error
 }
 
@@ -20,10 +20,12 @@ func NewCloudinaryService() CloudinaryService {
 	return &cloudinaryService{}
 }
 
-func (s *cloudinaryService) UploadImage(file multipart.File, filename string) (string, string, error) {
+func (s *cloudinaryService) UploadImage(file multipart.File, filename string, folder string) (string, string, error) {
 	cld := config.GetCloudinary()
 	ctx := context.Background()
-	folder := os.Getenv("CLOUDINARY_FOLDER")
+	if folder == "" {
+		folder = os.Getenv("CLOUDINARY_FOLDER")
+	}
 
 	resp, err := cld.Upload.Upload(ctx, file, uploader.UploadParams{
 		Folder:   folder,

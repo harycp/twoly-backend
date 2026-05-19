@@ -130,7 +130,7 @@ func (s *authService) UpdateProfile(userID string, req dto.UpdateProfileRequest)
 		}
 
 		oldAvatarPublicID := user.AvatarPublicID
-		secureURL, newPublicID, err := s.cloudinarySvc.UploadImage(file, user.ID.String()+"_avatar")
+		secureURL, newPublicID, err := s.cloudinarySvc.UploadImage(file, user.ID.String()+"_avatar", "twoly/avatar")
 		file.Close()
 		if err != nil {
 			return dto.UserResponse{}, errors.New("failed to upload avatar")
