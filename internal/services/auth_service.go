@@ -3,6 +3,7 @@ package services
 import (
 	"errors"
 
+	"github.com/google/uuid"
 	"github.com/harycp/twoly-backend/internal/dto"
 	"github.com/harycp/twoly-backend/internal/models"
 	"github.com/harycp/twoly-backend/internal/repositories"
@@ -130,7 +131,8 @@ func (s *authService) UpdateProfile(userID string, req dto.UpdateProfileRequest)
 		}
 
 		oldAvatarPublicID := user.AvatarPublicID
-		secureURL, newPublicID, err := s.cloudinarySvc.UploadImage(file, user.ID.String()+"_avatar", "twoly/avatar")
+		avatarPublicID := user.ID.String() + "_avatar_" + uuid.NewString()
+		secureURL, newPublicID, err := s.cloudinarySvc.UploadImage(file, avatarPublicID, "twoly/avatar")
 		file.Close()
 		if err != nil {
 			return dto.UserResponse{}, errors.New("failed to upload avatar")
