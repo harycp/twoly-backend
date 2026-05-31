@@ -1,6 +1,9 @@
 package dto
 
-import "mime/multipart"
+import (
+	"mime/multipart"
+	"time"
+)
 
 type RegisterRequest struct {
 	Name     string `json:"name" binding:"required"`
@@ -25,6 +28,7 @@ type UserResponse struct {
 	Name      string  `json:"name"`
 	Email     string  `json:"email"`
 	AvatarURL *string `json:"avatar_url,omitempty"`
+	LastSeen  *time.Time `json:"last_seen,omitempty"`
 }
 
 type UpdateProfileRequest struct {

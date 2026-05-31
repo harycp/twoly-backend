@@ -27,7 +27,6 @@ func NewCoupleService(coupleRepo repositories.CoupleRepository) CoupleService {
 }
 
 func (s *coupleService) CreateInvite(userID string, req dto.CreateInviteRequest) (dto.CoupleResponse, error) {
-	// Perbaikan: Cek error-nya juga, pastikan benar-benar tidak ada data
 	existingCouple, err := s.coupleRepo.FindByUserID(userID)
 	if err == nil && existingCouple != nil {
 		return dto.CoupleResponse{}, errors.New("user already in a couple or has a pending invite")
@@ -123,6 +122,7 @@ func (s *coupleService) GetMyCouple(userID string) (dto.CoupleResponse, error) {
 			Username:  partner.Username,
 			Email:     partner.Email,
 			AvatarURL: partner.AvatarURL,
+			LastSeen:  partner.LastSeen,
 		}
 	}
 

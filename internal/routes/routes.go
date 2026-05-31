@@ -19,7 +19,7 @@ func SetupRoutes(r *gin.Engine) {
 	photoRepo := repositories.NewMemoryPhotoRepository(db)
 	datePlanRepo := repositories.NewDatePlanRepository(db)
 	calendarRepo := repositories.NewCalendarRepository(db)
-	loveNoteRepo := repositories.NewLoveNoteRepository(db) 
+	loveNoteRepo := repositories.NewLoveNoteRepository(db)
 
 	// Services
 	cloudinarySvc := services.NewCloudinaryService()
@@ -30,6 +30,7 @@ func SetupRoutes(r *gin.Engine) {
 	datePlanService := services.NewDatePlanService(datePlanRepo, coupleRepo, memoryRepo)
 	calendarService := services.NewCalendarService(calendarRepo, memoryRepo, datePlanRepo, coupleRepo)
 	loveNoteService := services.NewLoveNoteService(loveNoteRepo, coupleRepo)
+	userService := services.NewUserService(userRepo)
 
 	// Handlers
 	authHandler := handlers.NewAuthHandler(authService)
@@ -39,6 +40,7 @@ func SetupRoutes(r *gin.Engine) {
 	datePlanHandler := handlers.NewDatePlanHandler(datePlanService)
 	calendarHandler := handlers.NewCalendarHandler(calendarService)
 	loveNoteHandler := handlers.NewLoveNoteHandler(loveNoteService)
+	userHandler := handlers.NewUserHandler(userService)
 
 	v1 := r.Group("/api/v1")
 	{
@@ -57,6 +59,7 @@ func SetupRoutes(r *gin.Engine) {
 		{
 			protected.GET("/auth/me", authHandler.GetMe)
 			protected.PUT("/auth/me", authHandler.UpdateProfile)
+			protected.PUT("/users/presence", userHandler.UpdatePresence)
 			
 			// Couple Routes
 			couples := protected.Group("/couples")

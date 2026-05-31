@@ -15,6 +15,7 @@ type User struct {
 	PasswordHash   string         `gorm:"type:text;not null" json:"-"`
 	AvatarURL      *string        `gorm:"type:text" json:"avatar_url"`
 	AvatarPublicID *string        `gorm:"column:avatar_cloudinary_public_id;type:text" json:"-"`
+	LastSeen       *time.Time     `gorm:"type:timestamp" json:"last_seen"`
 	CreatedAt      time.Time      `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt      time.Time      `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
 	DeletedAt      gorm.DeletedAt `gorm:"index" json:"-"`
