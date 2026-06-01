@@ -23,7 +23,8 @@ func SetupRoutes(r *gin.Engine) {
 
 	// Services
 	cloudinarySvc := services.NewCloudinaryService()
-	authService := services.NewAuthService(userRepo, cloudinarySvc)
+	emailSvc := services.NewEmailService()
+	authService := services.NewAuthService(userRepo, cloudinarySvc, emailSvc)
 	coupleService := services.NewCoupleService(coupleRepo)
 	memoryService := services.NewMemoryService(memoryRepo, coupleRepo)
 	photoService := services.NewMemoryPhotoService(photoRepo, memoryRepo, coupleRepo, cloudinarySvc)
@@ -53,6 +54,9 @@ func SetupRoutes(r *gin.Engine) {
 			auth.POST("/register", authHandler.Register)
 			auth.POST("/login", authHandler.Login)
 			auth.POST("/google", authHandler.GoogleLogin)
+			auth.POST("/forgot-password", authHandler.ForgotPassword)
+			auth.POST("/verify-otp", authHandler.VerifyOTP)
+			auth.POST("/reset-password", authHandler.ResetPassword)
 		}
 
 		protected := v1.Group("")

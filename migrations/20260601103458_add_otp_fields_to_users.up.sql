@@ -1,0 +1,2 @@
+ALTER TABLE users ADD COLUMN reset_otp VARCHAR(6) NULL;
+ALTER TABLE users ADD COLUMN reset_otp_expires_at TIMESTAMP NULL;
