@@ -52,6 +52,7 @@ func SetupRoutes(r *gin.Engine) {
 		{
 			auth.POST("/register", authHandler.Register)
 			auth.POST("/login", authHandler.Login)
+			auth.POST("/google", authHandler.GoogleLogin)
 		}
 
 		protected := v1.Group("")

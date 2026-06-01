@@ -37,3 +37,7 @@ type UpdateProfileRequest struct {
 	AvatarURL *string `json:"avatar_url"`
 	Avatar    *multipart.FileHeader `json:"-" form:"-"`
 }
+
+type GoogleLoginRequest struct {
+	IDToken string `json:"id_token" binding:"required"`
+}

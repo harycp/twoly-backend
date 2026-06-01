@@ -1,7 +1,11 @@
 package services
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
+	"net/http"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/harycp/twoly-backend/internal/dto"
@@ -15,6 +19,7 @@ type AuthService interface {
 	Login(req dto.LoginRequest) (dto.AuthResponse, error)
 	GetMe(userID string) (dto.UserResponse, error)
 	UpdateProfile(userID string, req dto.UpdateProfileRequest) (dto.UserResponse, error)
+	GoogleLogin(req dto.GoogleLoginRequest) (dto.AuthResponse, error)
 }
 
 type authService struct {
@@ -161,5 +166,60 @@ func (s *authService) UpdateProfile(userID string, req dto.UpdateProfileRequest)
 		Name:      user.Name,
 		Email:     user.Email,
 		AvatarURL: user.AvatarURL,
+	}, nil
+}
+
+func (s *authService) GoogleLogin(req dto.GoogleLoginRequest) (dto.AuthResponse, error) {
+	resp, err := http.Get("https://oauth2.googleapis.com/tokeninfo?id_token=" + req.IDToken)
+	if err != nil || resp.StatusCode != http.StatusOK {
+		return dto.AuthResponse{}, errors.New("invalid google token")
+	}
+	defer resp.Body.Close()
+
+	var googleClaims struct {
+		Email   string `json:"email"`
+		Name    string `json:"name"`
+		Picture string `json:"picture"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&googleClaims); err != nil {
+		return dto.AuthResponse{}, errors.New("failed to parse google token")
+	}
+
+	user, err := s.userRepo.FindByEmail(googleClaims.Email)
+	if err != nil || user.ID == uuid.Nil {
+		baseUsername := strings.ReplaceAll(strings.ToLower(googleClaims.Name), " ", "")
+		randomString := utils.GenerateInviteCode(4)
+		newUsername := fmt.Sprintf("%s_%s", baseUsername, randomString)
+
+		randomPassword, _ := utils.HashPassword(uuid.NewString())
+
+		newUser := models.User{
+			Name:         googleClaims.Name,
+			Username:     newUsername,
+			Email:        googleClaims.Email,
+			PasswordHash: randomPassword,
+			AvatarURL:    &googleClaims.Picture,
+		}
+
+		if err := s.userRepo.CreateUser(&newUser); err != nil {
+			return dto.AuthResponse{}, errors.New("failed to create user via google")
+		}
+		user = &newUser
+	}
+
+	token, err := utils.GenerateToken(user.ID)
+	if err != nil {
+		return dto.AuthResponse{}, err
+	}
+
+	return dto.AuthResponse{
+		AccessToken: token,
+		User: dto.UserResponse{
+			ID:        user.ID.String(),
+			Name:      user.Name,
+			Username:  user.Username,
+			Email:     user.Email,
+			AvatarURL: user.AvatarURL,
+		},
 	}, nil
 }

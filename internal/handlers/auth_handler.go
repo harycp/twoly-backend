@@ -105,3 +105,22 @@ func (h *AuthHandler) UpdateProfile(c *gin.Context) {
 		"data":    res,
 	})
 }
+
+func (h *AuthHandler) GoogleLogin(c *gin.Context) {
+	var req dto.GoogleLoginRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Validation failed", "error": err.Error()})
+		return
+	}
+
+	res, err := h.authService.GoogleLogin(req)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Google Login successful",
+		"data":    res,
+	})
+}
