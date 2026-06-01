@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -53,9 +54,12 @@ func main() {
 
 	routes.SetupRoutes(r)
 
-	port := os.Getenv("APP_PORT")
+	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080"
+		port = os.Getenv("APP_PORT")
+	}
+	if port == "" {
+		port = "8080" // Fallback terakhir
 	}
 
 	printServerBanner(port)
@@ -66,18 +70,22 @@ func main() {
 }
 
 func printServerBanner(port string) {
+	env := os.Getenv("APP_ENV")
+	if env == "" {
+		env = "DEVELOPMENT"
+	}
+
 	log.Printf(`
 +--------------------------------------------------+
 |              TWOLY BACKEND SYSTEM                |
 +--------------------------------------------------+
 | STATUS       : ONLINE                            |
-| ENVIRONMENT  : DEVELOPMENT                       |
+| ENVIRONMENT  : %-33s |
 | PROTOCOL     : HTTP                              |
-| HOST         : localhost                         |
-| PORT         : %-32s |
-| BASE URL     : http://localhost:%-15s |
+| HOST         : 0.0.0.0                           |
+| PORT         : %-33s |
 +--------------------------------------------------+
 | SYSTEM LOG   : SERVER BOOT SEQUENCE COMPLETED    |
 +--------------------------------------------------+
-`, port, port)
+`, strings.ToUpper(env), port)
 }
