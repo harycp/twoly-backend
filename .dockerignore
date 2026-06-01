@@ -1,0 +1,10 @@
+.git
+.gitignore
+.env
+.air.toml
+Makefile
+postman_collection.json
+readme.md
+README.md
+Dockerfile
+.dockerignore
