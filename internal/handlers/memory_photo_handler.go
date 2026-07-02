@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"net/http"
+	"os"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/harycp/twoly-backend/internal/services"
@@ -9,6 +11,17 @@ import (
 
 type MemoryPhotoHandler struct {
 	photoService services.MemoryPhotoService
+}
+
+func maxUploadSizeBytes() int64 {
+	defaultSizeMB := int64(100)
+	if value := os.Getenv("MAX_MEDIA_UPLOAD_SIZE_MB"); value != "" {
+		if parsed, err := strconv.ParseInt(value, 10, 64); err == nil && parsed > 0 {
+			defaultSizeMB = parsed
+		}
+	}
+
+	return defaultSizeMB << 20
 }
 
 func NewMemoryPhotoHandler(photoService services.MemoryPhotoService) *MemoryPhotoHandler {
@@ -19,8 +32,7 @@ func (h *MemoryPhotoHandler) UploadPhotos(c *gin.Context) {
 	userID, _ := c.Get("userID")
 	memoryID := c.Param("id")
 
-	// Limit upload size (e.g., 20MB total untuk banyak file)
-	err := c.Request.ParseMultipartForm(20 << 20)
+	err := c.Request.ParseMultipartForm(maxUploadSizeBytes())
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Total file size exceeds the limit"})
 		return
@@ -34,7 +46,7 @@ func (h *MemoryPhotoHandler) UploadPhotos(c *gin.Context) {
 
 	files := form.File["files"]
 	if len(files) == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "At least one image file is required"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "At least one image or video file is required"})
 		return
 	}
 
@@ -47,7 +59,7 @@ func (h *MemoryPhotoHandler) UploadPhotos(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, gin.H{
-		"message": "Photos uploaded successfully",
+		"message": "Media uploaded successfully",
 		"data":    res,
 	})
 }
@@ -63,7 +75,7 @@ func (h *MemoryPhotoHandler) GetPhotos(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Photos fetched successfully",
+		"message": "Media fetched successfully",
 		"data":    res,
 	})
 }

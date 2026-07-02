@@ -6,6 +6,7 @@ type MemoryPhotoResponse struct {
 	ID                 string    `json:"id"`
 	MemoryID           string    `json:"memory_id"`
 	UploadedBy         string    `json:"uploaded_by"`
+	MediaType          string    `json:"media_type"`
 	PhotoURL           string    `json:"photo_url"`
 	CloudinaryPublicID string    `json:"cloudinary_public_id"`
 	Caption            string    `json:"caption"`
@@ -29,6 +30,7 @@ type GalleryPhotoResponse struct {
 	ID                 string              `json:"id"`
 	MemoryID           string              `json:"memory_id"`
 	UploadedBy         string              `json:"uploaded_by"`
+	MediaType          string              `json:"media_type"`
 	PhotoURL           string              `json:"photo_url"`
 	CloudinaryPublicID string              `json:"cloudinary_public_id"`
 	Caption            string              `json:"caption"`

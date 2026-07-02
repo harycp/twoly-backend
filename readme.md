@@ -34,7 +34,7 @@ This repository contains the backend service built with **Go**, **Gin**, **GORM*
 - Shared calendar
 - Love notes
 - Realtime presence and touch
-- Cloudinary image upload through backend
+- Cloudinary media upload through backend with automatic compression
 
 ---
 
@@ -107,6 +107,7 @@ CLOUDINARY_API_KEY=your-cloudinary-api-key
 CLOUDINARY_API_SECRET=your-cloudinary-api-secret
 CLOUDINARY_FOLDER=twoly/memories
 CLOUDINARY_AVATAR_FOLDER=twoly/avatar
+MAX_MEDIA_UPLOAD_SIZE_MB=100
 
 MAX_IMAGE_UPLOAD_SIZE_MB=5
 ```

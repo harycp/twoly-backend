@@ -35,6 +35,19 @@ func NewMemoryPhotoService(
 	return &memoryPhotoService{photoRepo, memoryRepo, coupleRepo, cloudinarySvc}
 }
 
+func detectMediaType(filename string) (string, bool) {
+	ext := strings.ToLower(filepath.Ext(filename))
+
+	switch ext {
+	case ".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp", ".tif", ".tiff", ".heic", ".heif":
+		return "image", true
+	case ".mp4", ".mov", ".m4v", ".webm", ".avi", ".mkv", ".3gp", ".mpe", ".mpeg":
+		return "video", true
+	default:
+		return "", false
+	}
+}
+
 // verifyMemoryAccess ensures the user belongs to the couple that owns the memory
 func (s *memoryPhotoService) verifyMemoryAccess(userID string, memoryID string) (*models.Memory, error) {
 	couple, err := s.coupleRepo.FindByUserID(userID)
@@ -60,10 +73,9 @@ func (s *memoryPhotoService) UploadPhotos(userID string, memoryID string, fileHe
 	var responses []dto.MemoryPhotoResponse
 
 	for i, fileHeader := range fileHeaders {
-		// Validasi tipe file
-		ext := strings.ToLower(filepath.Ext(fileHeader.Filename))
-		if ext != ".jpg" && ext != ".jpeg" && ext != ".png" && ext != ".webp" {
-			continue // Skip file yang tidak valid
+		mediaType, ok := detectMediaType(fileHeader.Filename)
+		if !ok {
+			continue
 		}
 
 		file, err := fileHeader.Open()
@@ -71,16 +83,14 @@ func (s *memoryPhotoService) UploadPhotos(userID string, memoryID string, fileHe
 			continue
 		}
 
-		// Upload ke Cloudinary
 		uniqueFilename := uuid.New().String()
-		secureURL, publicID, err := s.cloudinarySvc.UploadImage(file, uniqueFilename, "")
-		file.Close() // Pastikan file ditutup setelah diupload
+		secureURL, publicID, err := s.cloudinarySvc.UploadMedia(file, uniqueFilename, "", mediaType)
+		file.Close()
 
 		if err != nil {
-			continue // Skip jika gagal upload ke cloud
+			continue
 		}
 
-		// Atur caption (jika caption yang dikirim lebih sedikit dari jumlah foto, gunakan caption pertama/kosong)
 		caption := ""
 		if len(captions) > i {
 			caption = captions[i]
@@ -88,10 +98,10 @@ func (s *memoryPhotoService) UploadPhotos(userID string, memoryID string, fileHe
 			caption = captions[0]
 		}
 
-		// Simpan ke Database
 		photo := models.MemoryPhoto{
 			MemoryID:           memory.ID,
 			UploadedBy:         userUUID,
+			MediaType:          mediaType,
 			PhotoURL:           secureURL,
 			CloudinaryPublicID: publicID,
 			Caption:            caption,
@@ -164,7 +174,7 @@ func (s *memoryPhotoService) DeletePhoto(userID string, memoryID string, photoID
 
 	// Delete from Cloudinary
 	if photo.CloudinaryPublicID != "" {
-		_ = s.cloudinarySvc.DeleteImage(photo.CloudinaryPublicID)
+		_ = s.cloudinarySvc.DeleteMedia(photo.CloudinaryPublicID, photo.MediaType)
 	}
 
 	// Delete from Database
@@ -176,6 +186,7 @@ func (s *memoryPhotoService) mapToResponse(p models.MemoryPhoto) dto.MemoryPhoto
 		ID:                 p.ID.String(),
 		MemoryID:           p.MemoryID.String(),
 		UploadedBy:         p.UploadedBy.String(),
+		MediaType:          p.MediaType,
 		PhotoURL:           p.PhotoURL,
 		CloudinaryPublicID: p.CloudinaryPublicID,
 		Caption:            p.Caption,
@@ -188,6 +199,7 @@ func (s *memoryPhotoService) mapToGalleryResponse(p models.MemoryPhoto) dto.Gall
 		ID:                 p.ID.String(),
 		MemoryID:           p.MemoryID.String(),
 		UploadedBy:         p.UploadedBy.String(),
+		MediaType:          p.MediaType,
 		PhotoURL:           p.PhotoURL,
 		CloudinaryPublicID: p.CloudinaryPublicID,
 		Caption:            p.Caption,
